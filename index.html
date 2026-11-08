@@ -1,0 +1,1849 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A1A3A">
+<title>Documentary - Login in to nature</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui,Arial,sans-serif;-webkit-tap-highlight-color:transparent!important;-webkit-touch-callout:none}
+button,a,input,select,textarea,div{outline:none!important}
+button:focus,a:focus,input:focus,select:focus,textarea:focus{outline:none!important;box-shadow:none!important}
+button:active{opacity:.92}
+body{background:#fff;display:flex;justify-content:center;min-height:100vh}
+.hidden{display:none!important}
+.phone{width:100%;max-width:430px;background:#fff;min-height:100vh;min-height:100dvh;position:relative;overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:500px){.phone{margin:18px 0;border-radius:42px;min-height:calc(100vh - 36px);border:9px solid #111;box-shadow:0 20px 60px rgba(0,0,0,.5)}}
+.scroll{flex:1;overflow-y:auto;padding-bottom:95px;background:#fff}
+.login-page{position:relative;height:100vh;height:100dvh;background:#0A1A3A;overflow-y:auto;display:flex;flex-direction:column;flex:1}
+.login-bg{height:32vh;min-height:230px;max-height:300px;position:relative;overflow:hidden;flex-shrink:0;background:radial-gradient(ellipse 90% 70% at 20% 15%,#1E4A9A 0%,transparent 60%),radial-gradient(ellipse 80% 60% at 85% 30%,#143A7A 0%,transparent 60%),radial-gradient(ellipse 100% 90% at 50% 100%,#0A2450 0%,transparent 70%),linear-gradient(180deg,#0A1A3A 0%,#0E2A5C 45%,#071230 100%)}
+.login-bg:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#2A5CB0 0%,transparent 70%);top:-20px;left:-40px;opacity:.9}
+.login-bg:after{content:"";position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,#122E66 0%,transparent 70%);bottom:10px;right:-80px;opacity:.9}
+.gold-lines{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+.login-card{position:relative;z-index:3;background:#fff;border-radius:26px 26px 0 0;padding:20px 22px 22px;margin-top:-26px;flex:1;display:flex;flex-direction:column}
+.login-card h2{font-size:32px;text-align:center;font-weight:900;letter-spacing:-.5px;color:#000}
+.login-sub{text-align:center;color:#444;font-size:15px;margin:6px 0 16px}
+.input-wrap{position:relative;margin-bottom:12px}
+.input-wrap input{width:100%;padding:14px 52px 14px 46px;border-radius:10px;border:none;background:#F3F3F3;font-size:16px;outline:none;color:#111}
+.input-wrap input::placeholder{color:#888}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;z-index:2;pointer-events:none}
+.eye{position:absolute;right:2px;top:50%;transform:translateY(-50%);cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent;border:none;padding:12px;z-index:999;min-width:48px;min-height:48px}
+.eye svg{pointer-events:none}
+.eye.active svg{stroke:#D4A800}
+.row-between{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin:4px 0 14px}
+.row-between label{display:flex;align-items:center;gap:8px;font-weight:500}
+.row-between input[type=checkbox]{width:18px;height:18px;accent-color:#FFC82E;margin:0}
+.row-between a{color:#D4A800;text-decoration:none;font-weight:500}
+.btn-login{width:100%;padding:13px;border:none;border-radius:999px;background:#FFC82E;font-weight:700;font-size:21px;cursor:pointer;color:#fff}
+.btn-login:disabled,.btn-next:disabled{opacity:.6;cursor:wait}
+.or-text{text-align:center;color:#555;font-size:14px;margin:12px 0}
+.google-only{display:flex;justify-content:center}
+.google-only button{padding:10px 28px;border:1px solid #D9D9D9;background:#fff;border-radius:999px;cursor:pointer;font-size:16px;display:flex;align-items:center;gap:8px;color:#333;font-weight:500}
+.signup-text{text-align:center;font-size:14px;color:#555;margin-top:12px;line-height:1.4;white-space:nowrap}
+.signup-text a{color:#D4A800;text-decoration:none;font-weight:700;margin-left:4px}
+.wizard{position:absolute;inset:0;background:#fff;z-index:20;display:flex;flex-direction:column;overflow-y:auto}
+.wizard-card{background:#fff;border-radius:0;padding:28px 22px 100px;margin-top:0;flex:1;position:relative}
+.wizard-card h2{font-size:28px;font-weight:900;line-height:1.2}
+.wizard-card p{color:#666;font-size:14px;margin:8px 0 18px;line-height:1.5}
+.w-field{margin-bottom:12px}
+.w-field label{font-size:13px;font-weight:700;display:block;margin-bottom:6px}
+.w-field input,.w-field select{width:100%;padding:14px;border-radius:12px;border:none;background:#F3F3F3;font-size:16px;outline:none;color:#111}
+.w-field input::placeholder{color:#AAA}
+.w-row{display:flex;gap:10px}
+.gender-opt{flex:1;padding:14px 5px;border:2px solid #EEE;border-radius:14px;text-align:center;cursor:pointer;font-weight:600;font-size:14px;background:#F9F9F9}
+.gender-opt.selected{border-color:#FFC82E;background:#FFF8E0}
+.success-box{text-align:center;padding:20px 0}
+.success-circle{width:80px;height:80px;background:#E8F5E9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.err{color:#D32F2F;font-size:13px;margin-top:8px;text-align:center;min-height:18px}
+.wizard-footer{position:absolute;bottom:24px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;padding-top:10px}
+.wizard-footer.only-next{justify-content:flex-end}
+.btn-next{width:auto!important;padding:14px 32px;border:none;border-radius:999px;background:#FFC82E;font-weight:700;font-size:17px;cursor:pointer;color:#fff}
+.btn-back-small{width:auto!important;padding:14px 22px;border:1px solid #ddd;background:#fff;border-radius:999px;font-weight:600;font-size:15px;cursor:pointer}
+.agree-text{font-size:16px!important;color:#111!important;line-height:1.6!important;margin:14px 0!important}
+.agree-text a{color:#1877F2;text-decoration:none;font-weight:500}
+.btn-agree{width:100%;padding:16px;border:none;border-radius:999px;background:#1877F2;color:#fff;font-weight:600;font-size:19px;cursor:pointer;margin-top:18px}
+.find-account{position:absolute;bottom:24px;left:0;right:0;text-align:center;color:#1877F2;font-size:17px;font-weight:500;cursor:pointer}
+.gmail-box{background:#F0F7FF;border-radius:16px;padding:16px;text-align:center;margin:16px 0}
+.gmail-box b{font-size:17px}
+#pageLoader{position:absolute;inset:0;background:rgba(255,255,255,.92);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#111;font-size:14px}
+#pageLoader .spinner{width:44px;height:44px;border:4px solid #EEE;border-top:4px solid #FFC82E;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+header{position:sticky;top:0;background:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+.logo{font-weight:900;font-size:19px}.logo span{color:#FFC82E}
+.searchbar{margin:0 16px 12px;background:#F5F5F5;border-radius:999px;padding:10px 14px;color:#888;font-size:14px}
+.stories{display:flex;gap:14px;overflow-x:auto;padding:4px 16px 12px;scrollbar-width:none}
+.story{text-align:center;min-width:62px;cursor:pointer}.story img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:3px solid #FFC82E}.story span{font-size:11px;display:block;margin-top:4px}
+.pills{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px}
+.pill{padding:8px 16px;border-radius:999px;background:#F0F0F0;border:none;white-space:nowrap;cursor:pointer;font-size:13px}
+.pill.active{background:#FFC82E;font-weight:700}
+.card{background:#fff;margin:0 16px 16px;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.card-top{display:flex;justify-content:space-between;align-items:center;padding:12px}
+.card-top .user{display:flex;gap:10px;align-items:center}
+.card-top img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+.follow-btn{border:1px solid #111;border-radius:999px;padding:6px 12px;background:#fff;font-weight:700;font-size:12px;cursor:pointer}
+.follow-btn.following{background:#111;color:#fff}
+.media{position:relative;background:#000}
+.media img,.media video{width:100%;height:230px;object-fit:cover;display:block}
+.duration{position:absolute;bottom:10px;right:10px;background:#000;color:#fff;font-size:11px;padding:4px 8px;border-radius:999px}
+.card-body{padding:12px 14px}
+.card-body h3{font-size:16px}
+.card-body p{color:#666;font-size:13px;margin:4px 0 10px;line-height:1.4}
+.actions{display:flex;gap:16px;font-size:13px;flex-wrap:wrap}
+.actions button{border:none;background:none;cursor:pointer;font-size:13px}
+.actions button.active{font-weight:800}
+.profile-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}
+.profile-top button{border:none;background:none;font-size:18px;cursor:pointer}
+.gear{font-size:22px!important}
+.profile-center{text-align:center;padding:4px 16px}
+.profile-center .big{width:170px;height:170px;border-radius:50%;object-fit:cover;background:#eee}
+.profile-center h2{font-size:26px;margin-top:12px}
+.profile-center .handle{color:#666;font-size:14px}
+.profile-center .bio{font-size:14px;color:#333;margin-top:8px;line-height:1.4}
+.stats{display:flex;justify-content:center;gap:32px;margin:16px 0}
+.stats b{display:block;font-size:18px}
+.stats span{font-size:12px;color:#666}
+.profile-btns{display:flex;gap:10px}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;background:#FFC82E;font-weight:800;font-size:16px;cursor:pointer}
+.btn-outline{background:#fff;border:1px solid #ddd;margin-top:10px}
+.tabs{display:flex;gap:8px;padding:12px 16px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px}
+.grid img{width:100%;height:110px;object-fit:cover;border-radius:12px;cursor:pointer}
+.pad{padding:16px}
+textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;min-height:70px}
+input{width:100%;padding:14px;border-radius:12px;border:1px solid #E5E5E5;background:#F8F8F8;margin-bottom:12px;font-size:15px}
+.comment{padding:10px 0;border-bottom:1px solid #f0f0f0;display:flex;gap:10px}
+.comment img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+.notif{padding:12px 16px;border-bottom:1px solid #f0f0f0;display:flex;gap:10px;align-items:center}
+.notif img{width:40px;height:40px;border-radius:50%;object-fit:cover}
+nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 0 14px;z-index:20}
+nav button{border:none;background:none;font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:#888}
+nav button.active{color:#111;font-weight:700}
+nav button .ic{font-size:20px}
+.fab{background:#FFC82E!important;width:52px;height:52px;border-radius:50%!important;font-size:26px!important;margin-top:-26px;color:#111!important;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:50}
+.modal-box{background:#fff;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:18px;max-height:75vh;overflow-y:auto}
+</style>
+</head>
+
+<body>
+<div class="phone">
+
+<div id="pageLoader" class="hidden">
+  <div class="spinner"></div>
+  <div>Loading...</div>
+</div>
+
+<div id="loginPage" class="login-page">
+  <div class="login-bg">
+    <svg class="gold-lines" viewBox="0 0 400 400" preserveAspectRatio="none">
+      <path d="M-10,80 C80,110 180,40 300,120 C360,160 400,180 420,170" stroke="#FFC82E" stroke-width="2.2" fill="none"/>
+      <path d="M-10,120 C70,150 180,90 310,180 C360,210 400,230 420,220" stroke="#FFC82E" stroke-width="1.6" fill="none" opacity=".85"/>
+      <path d="M280,0 C300,90 220,180 140,280 C90,340 60,380 50,410" stroke="#FFC82E" stroke-width="2.4" fill="none"/>
+      <path d="M360,0 C360,110 260,200 150,300 C90,360 60,390 55,410" stroke="#FFC82E" stroke-width="1.3" fill="none" opacity=".8"/>
+      <path d="M-10,260 C100,230 200,280 320,210 C380,175 410,170 420,165" stroke="#FFC82E" stroke-width="1.2" fill="none" opacity=".7"/>
+      <path d="M-10,310 C110,280 220,330 330,260" stroke="#D4A017" stroke-width="1" fill="none" opacity=".6"/>
+    </svg>
+  </div>
+
+  <div class="login-card">
+    <h2>Welcome Back</h2>
+    <p class="login-sub">Login in to nature</p>
+
+    <div class="input-wrap">
+      <span class="input-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+        </svg>
+      </span>
+      <input id="authEmail" placeholder="Email" type="email" autocomplete="email">
+    </div>
+
+    <div class="input-wrap">
+      <span class="input-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </span>
+      <input id="authPass" type="password" placeholder="Password" autocomplete="current-password">
+      <button type="button" class="eye" id="eyeBtn" aria-label="Show password">
+        <svg id="eyeOpen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <svg id="eyeClosed" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4A800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+          <path d="M10.73 5.08a9.94 9.94 0 0 1 1.27-.08c7 0 10 7 10 7a13.7 13.7 0 0 1-1.67 2.68"/>
+          <path d="M6.61 6.61A13.5 13.5 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+          <line x1="2" y1="2" x2="22" y2="22"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="row-between">
+      <label><input type="checkbox" id="keepSigned" checked> Keep me signed in</label>
+      <a href="#" onclick="forgotPass();return false">Forgot Password?</a>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">Log In</button>
+    <p class="or-text">Or continue with</p>
+
+    <div class="google-only">
+      <button id="googleBtn" onclick="loginGoogle()">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
+          <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+          <path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 13.9-5.5l-6.4-5.4C29.9 34.7 27.1 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.6 39.6 16.2 44 24 44z"/>
+          <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.4 4.2-4.8 5.1l6.4 5.4C39.6 35.4 44 30.2 44 24c0-1.3-.1-2.6-.4-3.9z"/>
+        </svg>
+        <span>Google</span>
+      </button>
+    </div>
+
+    <p class="signup-text">Don't have an account?<a href="#" id="createAccountLink">Create account</a></p>
+    <p id="authMsg" style="text-align:center;color:red;font-size:13px;margin-top:8px"></p>
+  </div>
+
+  <div id="signupWizard" class="wizard hidden">
+    <div class="wizard-card">
+
+      <div id="step1">
+        <h2>What's your name?</h2>
+        <p>Enter your first name and second name as you want them to appear.</p>
+        <div class="w-field"><label>First name</label><input id="suFirst"></div>
+        <div class="w-field"><label>Second name</label><input id="suSecond"></div>
+        <div class="wizard-footer only-next"><button class="btn-next" id="next1" type="button">Next →</button></div>
+      </div>
+
+      <div id="step2" class="hidden">
+        <h2>When were you born?</h2>
+        <p>Enter your day, month and year of birth.</p>
+        <div class="w-row">
+          <div class="w-field" style="flex:1"><label>Day</label><select id="suDay"><option value="">Day</option></select></div>
+          <div class="w-field" style="flex:1.3"><label>Month</label><select id="suMonth">
+            <option value="">Month</option>
+            <option value="01">January</option><option value="02">February</option>
+            <option value="03">March</option><option value="04">April</option>
+            <option value="05">May</option><option value="06">June</option>
+            <option value="07">July</option><option value="08">August</option>
+            <option value="09">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select></div>
+          <div class="w-field" style="flex:1"><label>Year</label><select id="suYear"><option value="">Year</option></select></div>
+        </div>
+        <div class="wizard-footer">
+          <button class="btn-back-small" id="back2" type="button">Back</button>
+          <button class="btn-next" id="next2" type="button">Next →</button>
+        </div>
+      </div>
+
+      <div id="step3" class="hidden">
+        <h2>What's your gender?</h2>
+        <p>Choose how you identify.</p>
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <div class="gender-opt" data-gender="Female">Female</div>
+          <div class="gender-opt" data-gender="Male">Male</div>
+          <div class="gender-opt" data-gender="Rather not say">Rather not say</div>
+        </div>
+        <div class="wizard-footer">
+          <button class="btn-back-small" id="back3" type="button">Back</button>
+          <button class="btn-next" id="next3" type="button">Next →</button>
+        </div>
+      </div>
+
+      <div id="step4" class="hidden">
+        <h2>Your Google account</h2>
+        <p>Enter the Google account / email you want to use to log in.</p>
+        <div class="w-field"><label>Google account (Email)</label><input id="suEmail" type="email"></div>
+        <div class="wizard-footer">
+          <button class="btn-back-small" id="back4" type="button">Back</button>
+          <button class="btn-next" id="next4" type="button">Next →</button>
+        </div>
+      </div>
+
+      <div id="step5" class="hidden">
+        <h2>Create a password</h2>
+        <p>Choose a strong password, at least 6 characters.</p>
+        <div class="w-field">
+          <label>Password</label>
+          <div style="position:relative">
+            <input id="suPass" type="password" style="padding-right:48px">
+            <button type="button" class="eye" id="suEyeBtn">
+              <svg id="suEyeOpen" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg id="suEyeClosed" class="hidden" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4A800" stroke-width="2">
+                <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08a9.94 9.94 0 0 1 1.27-.08c7 0 10 7 10 7a13.7 13.7 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.5 13.5 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="w-field"><label>Confirm password</label><input id="suPass2" type="password"></div>
+        <div class="wizard-footer">
+          <button class="btn-back-small" id="back5" type="button">Back</button>
+          <button class="btn-next" id="next5" type="button">Next →</button>
+        </div>
+      </div>
+
+      <div id="step6" class="hidden">
+        <h2>Agree to Documentary's terms and policies</h2>
+        <p class="agree-text">People who use our service may have uploaded your contact information to Documentary. <a href="#">Learn more</a></p>
+        <p class="agree-text">By tapping <b>I agree</b>, you agree to create an account and to Documentary's <a href="#">terms</a>, <a href="#">Privacy Policy</a> and <a href="#">Cookies Policy</a>.</p>
+        <p class="agree-text">The <a href="#">Privacy Policy</a> describes the ways we can use the information we collect when you create an account.</p>
+        <button class="btn-agree" type="button" id="agreeBtn">I agree</button>
+        <div class="find-account" id="findAccountBtn">Find my account</div>
+      </div>
+
+      <div id="step7" class="hidden">
+        <h2>Check your Gmail</h2>
+        <p>Supabase sent you a confirmation link. Go to Gmail and tap it to confirm your account.</p>
+        <div class="gmail-box">
+          <div style="font-size:32px">✉️</div>
+          <b id="gmailConfirmEmail"></b>
+          <p style="margin:8px 0 0">Open Gmail, tap the confirmation link, then return here.</p>
+        </div>
+        <button class="btn-login" type="button" id="confirmedBtn" style="background:#1877F2">I've confirmed in Gmail →</button>
+        <button class="btn-login" type="button" id="resendBtn" style="background:#fff;color:#1877F2;border:1px solid #ddd;margin-top:10px">Resend email</button>
+        <div class="wizard-footer">
+          <button class="btn-back-small" id="back7" type="button">Back</button>
+          <span style="font-size:13px;color:#888">Waiting for Gmail...</span>
+        </div>
+      </div>
+
+      <div id="step8" class="hidden">
+        <h2>Set your username</h2>
+        <p>Choose a username. This is how people will find you on Documentary.</p>
+        <div class="w-field"><label>Username</label><input id="suUsername" style="text-transform:lowercase"></div>
+        <p style="font-size:13px;color:#888" id="usernamePreview">@username</p>
+        <div class="wizard-footer">
+          <button class="btn-back-small" id="back8" type="button">Back</button>
+          <button class="btn-next" id="saveUsernameBtn" type="button">Next →</button>
+        </div>
+      </div>
+
+      <div id="step9" class="hidden">
+        <div class="success-box">
+          <div class="success-circle">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="3">
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+          </div>
+          <h2>You're now logged in!</h2>
+          <p id="successText">Account created successfully.<br>Welcome to Documentary.</p>
+          <div class="wizard-footer only-next">
+            <button class="btn-next" type="button" id="continueBtn">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="err" id="wizardErr"></p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APPLICATION -->
+<div id="app" class="hidden" style="display:flex;flex-direction:column;flex:1;min-height:100%;background:#fff">
+  <div class="scroll" id="mainScroll">
+
+    <div id="feedPage">
+      <header>
+        <div class="logo">Documentary<span>.</span></div>
+        <div style="font-size:20px">🔍 <span onclick="showPage('notifications')">🔔</span></div>
+      </header>
+      <div class="searchbar">🔍 Search documentaries, creators...</div>
+      <div class="stories" id="stories"></div>
+      <div class="pills">
+        <button class="pill active" onclick="setCat('All',this)">All</button>
+        <button class="pill" onclick="setCat('Nature',this)">Nature</button>
+        <button class="pill" onclick="setCat('History',this)">History</button>
+        <button class="pill" onclick="setCat('True Crime',this)">True Crime</button>
+        <button class="pill" onclick="setCat('Science',this)">Science</button>
+      </div>
+      <div id="feedList"><p style="padding:0 16px">Loading...</p></div>
+    </div>
+
+    <div id="profilePage" class="hidden">
+      <div class="profile-top">
+        <button onclick="showPage('feed')">←</button>
+        <span style="font-weight:800">Profile</span>
+        <button class="gear" onclick="openSettings()">⚙️</button>
+      </div>
+      <div class="profile-center">
+        <img id="profileAvatar" class="big" src="" alt="Profile photo">
+        <h2 id="profileName"></h2>
+        <p class="handle" id="profileHandle"></p>
+        <p class="bio" id="profileBio"></p>
+        <div class="stats">
+          <div><b id="statDocs">0</b><span>Documentaries</span></div>
+          <div><b id="statFollowers">0</b><span>Followers</span></div>
+          <div><b id="statFollowing">0</b><span>Following</span></div>
+        </div>
+        <div class="profile-btns">
+          <button class="btn" onclick="editProfile()">Edit Profile</button>
+          <button class="btn btn-outline" onclick="shareProfile()">Share Profile</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="pill active" onclick="setProfileTab('mine',this)">Documentaries</button>
+        <button class="pill" onclick="setProfileTab('saved',this)">Saved</button>
+        <button class="pill" onclick="setProfileTab('liked',this)">Liked</button>
+      </div>
+      <div class="grid" id="profileGrid"></div>
+    </div>
+
+    <div id="uploadPage" class="hidden pad">
+      <h2>Create Documentary</h2>
+      <p style="color:#666;font-size:13px;margin-top:6px">Upload to Supabase - real video</p>
+      <label>Title</label><input id="docTitle" placeholder="The Last Glacier">
+      <label>Description</label><textarea id="docDesc" placeholder="A journey..."></textarea>
+      <label>Category</label><input id="docCat" placeholder="Nature">
+      <label>Video File</label><input id="docVideo" type="file" accept="video/*">
+      <label>Thumbnail Image</label><input id="docThumb" type="file" accept="image/*">
+      <button class="btn" onclick="uploadDoc()">Post Documentary</button>
+      <p id="uploadMsg"></p>
+    </div>
+
+    <div id="notificationsPage" class="hidden pad">
+      <h2>Notifications</h2>
+      <div id="notifList" style="margin-top:12px"></div>
+    </div>
+
+    <div id="settingsPage" class="hidden pad">
+      <h2>Settings</h2>
+      <label>Bio</label><textarea id="settingsBio"></textarea>
+      <label>Avatar - Upload New Photo</label>
+      <input id="settingsAvatar" type="file" accept="image/*">
+      <button class="btn" onclick="saveSettings()">Save Settings</button>
+      <button class="btn btn-outline" style="margin-top:10px;color:red" onclick="doLogout()">Log Out</button>
+      <button class="btn btn-outline" style="margin-top:10px" onclick="showPage('profile')">Back to Profile</button>
+    </div>
+  </div>
+
+  <nav>
+    <button id="nav-feed" class="active" onclick="showPage('feed',this)"><span class="ic">🏠</span>Home</button>
+    <button onclick="showPage('feed',this)"><span class="ic">🧭</span>Explore</button>
+    <button class="fab" onclick="showPage('upload',this)">+</button>
+    <button onclick="showPage('notifications',this)"><span class="ic">🔔</span>Notifications</button>
+    <button onclick="showPage('profile',this)"><span class="ic">👤</span>Profile</button>
+  </nav>
+</div>
+
+<div id="commentModal" class="modal hidden">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between">
+      <b>Comments</b>
+      <button onclick="closeComments()" style="border:none;background:none;font-size:18px">✕</button>
+    </div>
+    <div id="commentList" style="margin-top:12px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input id="commentInput" placeholder="Add a comment...">
+      <button class="btn" style="width:80px" onclick="postComment()">Post</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* =====================================
+   DOCUMENTARY APPLICATION
+   SUPABASE CONFIGURATION
+===================================== */
+
+const SUPABASE_URL = "https://grsriizukjxfoxscqgoo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_d3pb06qC7fhm2CMg1R0jWA_KILlHlXJ";
+
+if (!window.supabase || !window.supabase.createClient) {
+  alert("Supabase could not load. Check your internet connection and refresh.");
+  throw new Error("Supabase library unavailable");
+}
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
+
+let currentUser = null;
+let currentCat = 'All';
+let currentProfileTab = 'mine';
+let currentCommentDoc = null;
+let allDocs = [];
+
+const STORIES = [
+  {name:'Nature',img:'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=200&q=80'},
+  {name:'History',img:'https://images.unsplash.com/photo-1555993539-1732b0258235?w=200&q=80'},
+  {name:'Science',img:'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=200&q=80'},
+  {name:'Culture',img:'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=200&q=80'},
+  {name:'Wildlife',img:'https://images.unsplash.com/photo-1547407139-3c921a66005c?w=200&q=80'}
+];
+
+function showLoader(text) {
+  const loader = document.getElementById('pageLoader');
+  if (!loader) return;
+  if (text) loader.querySelector('div:last-child').textContent = text;
+  loader.classList.remove('hidden');
+}
+
+function hideLoader() {
+  const loader = document.getElementById('pageLoader');
+  if (loader) loader.classList.add('hidden');
+}
+
+function showAuthMessage(message, color='#D32F2F') {
+  const el = document.getElementById('authMsg');
+  if (!el) return;
+  el.style.color = color;
+  el.textContent = message || '';
+}
+
+function showWizardError(message, color='#D32F2F') {
+  const el = document.getElementById('wizardErr');
+  if (!el) return;
+  el.style.color = color;
+  el.textContent = message || '';
+}
+
+function friendlyError(error) {
+  const message = error?.message || 'Something went wrong. Please try again.';
+
+  if (/invalid login credentials/i.test(message)) {
+    return 'Incorrect email or password.';
+  }
+  if (/email not confirmed/i.test(message)) {
+    return 'Please confirm your email using the link sent to your Gmail.';
+  }
+  if (/user already registered/i.test(message)) {
+    return 'This email already has an account. Please log in instead.';
+  }
+  if (/duplicate key|unique constraint/i.test(message)) {
+    return 'That username is already taken. Please choose another one.';
+  }
+  if (/row-level security|permission denied/i.test(message)) {
+    return 'Database permission denied. Check your Supabase security policies.';
+  }
+  return message;
+}
+
+function setButtonLoading(button, loading, originalText) {
+  if (!button) return;
+  button.disabled = loading;
+  button.textContent = loading ? 'Please wait...' : originalText;
+}
+
+function renderStories() {
+  document.getElementById('stories').innerHTML = STORIES.map(s =>
+    `<div class="story" onclick="setCat('${s.name}',null)">
+      <img src="${s.img}" alt="${s.name}">
+      <span>${s.name}</span>
+    </div>`
+  ).join('');
+}
+
+renderStories();
+
+/* =====================================
+   SIGNUP WIZARD
+===================================== */
+
+let signupData = {
+  first:'',
+  second:'',
+  day:'',
+  month:'',
+  year:'',
+  gender:'',
+  email:'',
+  password:'',
+  username:''
+};
+
+let wizardStep = 1;
+
+function showWizardStep(n, push=true) {
+  wizardStep = n;
+
+  for (let i=1; i<=9; i++) {
+    const el = document.getElementById('step'+i);
+    if (el) el.classList.toggle('hidden', i!==n);
+  }
+
+  showWizardError('');
+
+  if (push) {
+    try {
+      history.pushState({wizardStep:n}, '', '#signup-step-'+n);
+    } catch(e) {}
+  }
+}
+
+function openSignupWizard() {
+  signupData = {
+    first:'',second:'',day:'',month:'',year:'',
+    gender:'',email:'',password:'',username:''
+  };
+
+  document.getElementById('signupWizard').classList.remove('hidden');
+  showWizardStep(1);
+}
+
+function closeSignupWizard() {
+  document.getElementById('signupWizard').classList.add('hidden');
+}
+
+function wizardBack() {
+  if (wizardStep > 1) {
+    showWizardStep(wizardStep-1);
+  } else {
+    closeSignupWizard();
+  }
+}
+
+function wizardNext(step) {
+  const err = document.getElementById('wizardErr');
+
+  if (step===1) {
+    const first = document.getElementById('suFirst').value.trim();
+    const second = document.getElementById('suSecond').value.trim();
+
+    if (!first || !second) {
+      err.textContent = 'Please enter your first name and second name.';
+      return;
+    }
+
+    signupData.first = first;
+    signupData.second = second;
+    showWizardStep(2);
+    return;
+  }
+
+  if (step===2) {
+    const day = document.getElementById('suDay').value;
+    const month = document.getElementById('suMonth').value;
+    const year = document.getElementById('suYear').value;
+
+    if (!day || !month || !year) {
+      err.textContent = 'Please select day, month and year.';
+      return;
+    }
+
+    const date = new Date(Number(year),Number(month)-1,Number(day));
+
+    if (
+      date.getFullYear()!==Number(year) ||
+      date.getMonth()!==Number(month)-1 ||
+      date.getDate()!==Number(day)
+    ) {
+      err.textContent = 'Please select a valid date.';
+      return;
+    }
+
+    signupData.day = day;
+    signupData.month = month;
+    signupData.year = year;
+    showWizardStep(3);
+    return;
+  }
+
+  if (step===3) {
+    if (!signupData.gender) {
+      err.textContent = 'Please choose your gender.';
+      return;
+    }
+    showWizardStep(4);
+    return;
+  }
+
+  if (step===4) {
+    const email = document.getElementById('suEmail').value.trim();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      err.textContent = 'Please enter a valid email address.';
+      return;
+    }
+
+    signupData.email = email;
+    showWizardStep(5);
+    return;
+  }
+
+  if (step===5) {
+    const password = document.getElementById('suPass').value;
+    const confirm = document.getElementById('suPass2').value;
+
+    if (password.length<6) {
+      err.textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+
+    if (password!==confirm) {
+      err.textContent = 'Passwords do not match.';
+      return;
+    }
+
+    signupData.password = password;
+    showWizardStep(6);
+  }
+}
+
+/* =====================================
+   CREATE ACCOUNT
+===================================== */
+
+async function doAgree() {
+  const button = document.getElementById('agreeBtn');
+
+  if (!signupData.email || !signupData.password) {
+    showWizardError('Please complete registration first.');
+    return;
+  }
+
+  setButtonLoading(button,true,'I agree');
+  showLoader('Creating account...');
+
+  try {
+    const fullName = signupData.first+' '+signupData.second;
+    const dob = signupData.year+'-'+signupData.month+'-'+signupData.day;
+
+    const {data,error} = await supabase.auth.signUp({
+      email:signupData.email,
+      password:signupData.password,
+      options:{
+        emailRedirectTo:window.location.origin+window.location.pathname,
+        data:{
+          name:fullName,
+          first_name:signupData.first,
+          last_name:signupData.second,
+          gender:signupData.gender,
+          dob:dob
+        }
+      }
+    });
+
+    if (error) throw error;
+
+    document.getElementById('gmailConfirmEmail').textContent = signupData.email;
+
+    showWizardStep(7);
+    showWizardError('Account created. Check your Gmail for the confirmation link.','#2E7D32');
+
+  } catch(error) {
+    showWizardError(friendlyError(error));
+  } finally {
+    hideLoader();
+    setButtonLoading(button,false,'I agree');
+  }
+}
+
+/* =====================================
+   EMAIL CONFIRMATION
+===================================== */
+
+async function checkGmailConfirmed() {
+  const button = document.getElementById('confirmedBtn');
+
+  setButtonLoading(button,true,"I've confirmed in Gmail →");
+  showLoader('Checking Gmail confirmation...');
+
+  try {
+    const {data,error} = await supabase.auth.signInWithPassword({
+      email:signupData.email,
+      password:signupData.password
+    });
+
+    if (error) {
+      if (/email not confirmed/i.test(error.message)) {
+        throw new Error('Your email is not confirmed yet. Open Gmail, tap the confirmation link, then try again.');
+      }
+      throw error;
+    }
+
+    if (!data.user) throw new Error('Could not verify your account.');
+
+    currentUser = data.user;
+
+    const suggested = (signupData.first+signupData.second)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g,'');
+
+    document.getElementById('suUsername').value = suggested;
+    document.getElementById('usernamePreview').textContent = '@'+suggested;
+
+    showWizardStep(8);
+
+  } catch(error) {
+    showWizardError(friendlyError(error));
+  } finally {
+    hideLoader();
+    setButtonLoading(button,false,"I've confirmed in Gmail →");
+  }
+}
+
+async function resendConfirm() {
+  const button = document.getElementById('resendBtn');
+
+  setButtonLoading(button,true,'Resend email');
+  showLoader('Resending confirmation email...');
+
+  try {
+    const {error} = await supabase.auth.resend({
+      type:'signup',
+      email:signupData.email,
+      options:{
+        emailRedirectTo:window.location.origin+window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+
+    showWizardError('Confirmation email sent. Check your inbox and spam folder.','#2E7D32');
+
+  } catch(error) {
+    showWizardError(friendlyError(error));
+  } finally {
+    hideLoader();
+    setButtonLoading(button,false,'Resend email');
+  }
+}
+
+/* =====================================
+   SAVE USERNAME AND PROFILE
+===================================== */
+
+async function saveUsername() {
+  const button = document.getElementById('saveUsernameBtn');
+  const username = document.getElementById('suUsername').value.trim().toLowerCase();
+
+  if (!/^[a-z0-9_.]{3,30}$/.test(username)) {
+    showWizardError('Username must be 3–30 characters and use only letters, numbers, underscores or dots.');
+    return;
+  }
+
+  setButtonLoading(button,true,'Next →');
+  showLoader('Saving profile...');
+
+  try {
+    const {data:userData,error:userError} = await supabase.auth.getUser();
+
+    if (userError) throw userError;
+
+    const user = userData.user;
+
+    if (!user) {
+      throw new Error('Your session has expired. Please log in again.');
+    }
+
+    const fullName = signupData.first+' '+signupData.second;
+
+    const {error:profileError} = await supabase
+      .from('profiles')
+      .upsert({
+        id:user.id,
+        name:fullName,
+        handle:username,
+        bio:''
+      },{onConflict:'id'});
+
+    if (profileError) throw profileError;
+
+    currentUser = user;
+    signupData.username = username;
+
+    document.getElementById('successText').innerHTML =
+      'Welcome <b>@'+username+'</b><br>Account created for <b>'+
+      fullName+'</b>.<br>You are now logged in.';
+
+    showWizardStep(9);
+
+  } catch(error) {
+    showWizardError(friendlyError(error));
+  } finally {
+    hideLoader();
+    setButtonLoading(button,false,'Next →');
+  }
+}
+
+async function goToAppFromSignup() {
+  closeSignupWizard();
+
+  try {
+    await initApp();
+  } catch(error) {
+    console.error(error);
+    showAuthMessage(friendlyError(error));
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('app').classList.add('hidden');
+  }
+}
+
+/* =====================================
+   LOGIN
+===================================== */
+
+async function doLogin() {
+  const button = document.getElementById('loginBtn');
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPass').value;
+
+  showAuthMessage('');
+
+  if (!email || !password) {
+    showAuthMessage('Enter your email and password.');
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showAuthMessage('Enter a valid email address.');
+    return;
+  }
+
+  setButtonLoading(button,true,'Log In');
+  showLoader('Logging in...');
+
+  try {
+    const {data,error} = await supabase.auth.signInWithPassword({
+      email:email,
+      password:password
+    });
+
+    if (error) throw error;
+    if (!data.user) throw new Error('Login failed. Please try again.');
+
+    currentUser = data.user;
+
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+
+    await initApp();
+
+  } catch(error) {
+    showAuthMessage(friendlyError(error));
+    document.getElementById('loginPage').classList.remove('hidden');
+    document.getElementById('app').classList.add('hidden');
+  } finally {
+    hideLoader();
+    setButtonLoading(button,false,'Log In');
+  }
+}
+
+/* =====================================
+   GOOGLE LOGIN
+===================================== */
+
+async function loginGoogle() {
+  showAuthMessage('');
+  showLoader('Connecting to Google...');
+
+  try {
+    const {error} = await supabase.auth.signInWithOAuth({
+      provider:'google',
+      options:{
+        redirectTo:window.location.origin+window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+
+  } catch(error) {
+    hideLoader();
+    showAuthMessage(friendlyError(error));
+  }
+}
+
+/* =====================================
+   PASSWORD RESET
+===================================== */
+
+async function forgotPass() {
+  const email = document.getElementById('authEmail').value.trim();
+
+  showAuthMessage('');
+
+  if (!email) {
+    showAuthMessage('Enter your email address first.');
+    return;
+  }
+
+  showLoader('Sending password reset email...');
+
+  try {
+    const {error} = await supabase.auth.resetPasswordForEmail(email,{
+      redirectTo:window.location.origin+window.location.pathname
+    });
+
+    if (error) throw error;
+
+    showAuthMessage('Password reset email sent. Check your inbox.','#2E7D32');
+
+  } catch(error) {
+    showAuthMessage(friendlyError(error));
+  } finally {
+    hideLoader();
+  }
+}
+
+/* =====================================
+   LOGOUT
+===================================== */
+
+async function doLogout() {
+  showLoader('Signing out...');
+
+  try {
+    const {error} = await supabase.auth.signOut();
+    if (error) throw error;
+
+    currentUser = null;
+    location.reload();
+
+  } catch(error) {
+    hideLoader();
+    alert(friendlyError(error));
+  }
+}
+
+/* =====================================
+   SESSION RESTORATION
+===================================== */
+
+async function restoreSession() {
+  showLoader('Checking your session...');
+
+  try {
+    const {data,error} = await supabase.auth.getSession();
+
+    if (error) throw error;
+
+    if (data.session?.user) {
+      currentUser = data.session.user;
+
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+
+      await initApp();
+    }
+
+  } catch(error) {
+    console.error('Session restoration error:',error);
+    showAuthMessage('Could not restore your session. Please log in again.');
+  } finally {
+    hideLoader();
+  }
+}
+
+supabase.auth.onAuthStateChange((event,session) => {
+  if (event==='SIGNED_OUT') currentUser = null;
+  if (session?.user) currentUser = session.user;
+});
+
+/* =====================================
+   APP INITIALISATION
+===================================== */
+
+async function initApp() {
+  const {data,error} = await supabase.auth.getUser();
+
+  if (error) throw error;
+
+  if (!data.user) {
+    currentUser = null;
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('loginPage').classList.remove('hidden');
+    return;
+  }
+
+  currentUser = data.user;
+
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+
+  const results = await Promise.allSettled([
+    loadFeed(),
+    loadProfile(),
+    loadNotifications()
+  ]);
+
+  results.forEach((result,index) => {
+    if (result.status==='rejected') {
+      console.error('App section failed:',index,result.reason);
+    }
+  });
+}
+
+/* =====================================
+   FEED
+===================================== */
+
+async function loadFeed() {
+  let q = supabase
+    .from('documentaries')
+    .select('*, profiles!documentaries_author_id_fkey(name,handle,avatar_url), likes(id,user_id), saves(id,user_id), comments(id)')
+    .order('created_at',{ascending:false});
+
+  if (currentCat!=='All') q=q.eq('category',currentCat);
+
+  const {data,error} = await q;
+
+  if (error) {
+    document.getElementById('feedList').innerHTML =
+      '<p style="padding:16px;color:red">Could not load documentaries: '+
+      escapeHTML(error.message)+'</p>';
+    return;
+  }
+
+  allDocs = data||[];
+
+  const {data:follows} = await supabase
+    .from('follows')
+    .select('following_id')
+    .eq('follower_id',currentUser.id);
+
+  const followingIds = (follows||[]).map(f=>f.following_id);
+
+  document.getElementById('feedList').innerHTML = allDocs.map(d => {
+    const liked = (d.likes||[]).some(l=>l.user_id===currentUser.id);
+    const saved = (d.saves||[]).some(s=>s.user_id===currentUser.id);
+    const isFollowing = followingIds.includes(d.author_id);
+    const isMine = d.author_id===currentUser.id;
+
+    return `
+    <div class="card">
+      <div class="card-top">
+        <div class="user">
+          <img src="${escapeAttr(d.profiles?.avatar_url||'')}" alt="">
+          <div>
+            <b style="font-size:14px">${escapeHTML(d.profiles?.name||'Unknown')}</b>
+            <div style="font-size:12px;color:#888">@${escapeHTML(d.profiles?.handle||'')} • ${escapeHTML(d.category||'')}</div>
+          </div>
+        </div>
+        ${isMine?'':`<button class="follow-btn ${isFollowing?'following':''}" onclick="toggleFollow('${d.author_id}',this)">${isFollowing?'Following':'Follow'}</button>`}
+      </div>
+      <div class="media">
+        ${d.video_url
+          ? `<video src="${escapeAttr(d.video_url)}" controls poster="${escapeAttr(d.thumbnail_url||'')}"></video>`
+          : `<img src="${escapeAttr(d.thumbnail_url||'')}" alt="${escapeAttr(d.title||'Documentary')}">`}
+        <div class="duration">${escapeHTML(d.duration||'')}</div>
+      </div>
+      <div class="card-body">
+        <h3>${escapeHTML(d.title||'Untitled')}</h3>
+        <p>${escapeHTML(d.description||'')}</p>
+        <div class="actions">
+          <button class="${liked?'active':''}" onclick="toggleLike('${d.id}',this)">❤️ ${d.likes?.length||0}</button>
+          <button onclick="openComments('${d.id}')">💬 ${d.comments?.length||0}</button>
+          <button onclick="shareDoc('${escapeAttr(d.title||'Documentary')}')">↗️ Share</button>
+          <button class="${saved?'active':''}" onclick="toggleSave('${d.id}',this)">${saved?'🔖 Saved':'🔖 Save'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || '<p style="padding:16px">No documentaries yet. Tap + to create the first one!</p>';
+}
+
+/* =====================================
+   LIKES
+===================================== */
+
+async function toggleLike(docId,btn) {
+  try {
+    const {data:existing,error} = await supabase
+      .from('likes')
+      .select('*')
+      .eq('user_id',currentUser.id)
+      .eq('doc_id',docId)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (existing) {
+      const {error:deleteError} = await supabase
+        .from('likes').delete().eq('id',existing.id);
+      if (deleteError) throw deleteError;
+    } else {
+      const {error:insertError} = await supabase
+        .from('likes').insert({user_id:currentUser.id,doc_id:docId});
+      if (insertError) throw insertError;
+      await notify(docId,'like');
+    }
+
+    await loadFeed();
+  } catch(error) {
+    alert(friendlyError(error));
+  }
+}
+
+/* =====================================
+   SAVES
+===================================== */
+
+async function toggleSave(docId,btn) {
+  try {
+    const {data:existing,error} = await supabase
+      .from('saves')
+      .select('*')
+      .eq('user_id',currentUser.id)
+      .eq('doc_id',docId)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (existing) {
+      const {error:deleteError} = await supabase
+        .from('saves').delete().eq('id',existing.id);
+      if (deleteError) throw deleteError;
+    } else {
+      const {error:insertError} = await supabase
+        .from('saves').insert({user_id:currentUser.id,doc_id:docId});
+      if (insertError) throw insertError;
+    }
+
+    await loadFeed();
+    await loadProfile();
+
+  } catch(error) {
+    alert(friendlyError(error));
+  }
+}
+
+/* =====================================
+   FOLLOW
+===================================== */
+
+async function toggleFollow(targetId,btn) {
+  if (targetId===currentUser.id) return;
+
+  try {
+    const {data:existing,error} = await supabase
+      .from('follows')
+      .select('*')
+      .eq('follower_id',currentUser.id)
+      .eq('following_id',targetId)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (existing) {
+      const {error:deleteError} = await supabase
+        .from('follows').delete().eq('id',existing.id);
+      if (deleteError) throw deleteError;
+    } else {
+      const {error:insertError} = await supabase
+        .from('follows')
+        .insert({follower_id:currentUser.id,following_id:targetId});
+
+      if (insertError) throw insertError;
+
+      const {error:notificationError} = await supabase
+        .from('notifications')
+        .insert({
+          user_id:targetId,
+          actor_id:currentUser.id,
+          type:'follow'
+        });
+
+      if (notificationError) console.error(notificationError);
+    }
+
+    await loadFeed();
+    await loadProfile();
+
+  } catch(error) {
+    alert(friendlyError(error));
+  }
+}
+
+/* =====================================
+   NOTIFICATIONS HELPER
+===================================== */
+
+async function notify(docId,type) {
+  const doc = allDocs.find(d=>d.id===docId);
+  if (!doc || doc.author_id===currentUser.id) return;
+
+  const {error} = await supabase.from('notifications').insert({
+    user_id:doc.author_id,
+    actor_id:currentUser.id,
+    type:type,
+    doc_id:docId
+  });
+
+  if (error) console.error('Notification error:',error);
+}
+
+/* =====================================
+   SHARE DOCUMENTARY
+===================================== */
+
+async function shareDoc(title) {
+  const url = window.location.href;
+
+  try {
+    if (navigator.share) {
+      await navigator.share({title:title,url:url});
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      alert('Link copied!');
+    } else {
+      alert(url);
+    }
+  } catch(error) {
+    if (error.name!=='AbortError') alert(error.message);
+  }
+}
+
+/* =====================================
+   COMMENTS
+===================================== */
+
+async function openComments(docId) {
+  currentCommentDoc = docId;
+  document.getElementById('commentModal').classList.remove('hidden');
+  document.getElementById('commentList').innerHTML = 'Loading comments...';
+
+  const {data,error} = await supabase
+    .from('comments')
+    .select('*, profiles(name,avatar_url)')
+    .eq('doc_id',docId)
+    .order('created_at',{ascending:false});
+
+  if (error) {
+    document.getElementById('commentList').textContent = error.message;
+    return;
+  }
+
+  document.getElementById('commentList').innerHTML = (data||[]).map(c => `
+    <div class="comment">
+      <img src="${escapeAttr(c.profiles?.avatar_url||'')}" alt="">
+      <div>
+        <b style="font-size:13px">${escapeHTML(c.profiles?.name||'')}</b>
+        <p style="font-size:13px">${escapeHTML(c.text||'')}</p>
+      </div>
+    </div>
+  `).join('') || '<p>No comments yet</p>';
+}
+
+function closeComments() {
+  document.getElementById('commentModal').classList.add('hidden');
+}
+
+async function postComment() {
+  const text = document.getElementById('commentInput').value.trim();
+
+  if (!text || !currentCommentDoc) return;
+
+  try {
+    const {error} = await supabase.from('comments').insert({
+      user_id:currentUser.id,
+      doc_id:currentCommentDoc,
+      text:text
+    });
+
+    if (error) throw error;
+
+    document.getElementById('commentInput').value = '';
+
+    await notify(currentCommentDoc,'comment');
+    await openComments(currentCommentDoc);
+    await loadFeed();
+
+  } catch(error) {
+    alert(friendlyError(error));
+  }
+}
+
+/* =====================================
+   PROFILE
+===================================== */
+
+async function loadProfile() {
+  const {data:profile,error} = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id',currentUser.id)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  if (!profile) {
+    document.getElementById('profileName').textContent = 'Profile not found';
+    return;
+  }
+
+  document.getElementById('profileName').textContent = profile.name||'';
+  document.getElementById('profileHandle').textContent = '@'+(profile.handle||'');
+  document.getElementById('profileBio').textContent = profile.bio||'';
+  document.getElementById('profileAvatar').src = profile.avatar_url||'';
+  document.getElementById('settingsBio').value = profile.bio||'';
+
+  const {data:myDocs,error:docsError} = await supabase
+    .from('documentaries')
+    .select('*')
+    .eq('author_id',currentUser.id)
+    .order('created_at',{ascending:false});
+
+  if (docsError) throw docsError;
+
+  const {count:followers,error:followersError} = await supabase
+    .from('follows')
+    .select('*',{count:'exact',head:true})
+    .eq('following_id',currentUser.id);
+
+  if (followersError) throw followersError;
+
+  const {count:following,error:followingError} = await supabase
+    .from('follows')
+    .select('*',{count:'exact',head:true})
+    .eq('follower_id',currentUser.id);
+
+  if (followingError) throw followingError;
+
+  document.getElementById('statDocs').textContent = myDocs?.length||0;
+  document.getElementById('statFollowers').textContent = followers||0;
+  document.getElementById('statFollowing').textContent = following||0;
+
+  let gridDocs = [];
+
+  if (currentProfileTab==='mine') {
+    gridDocs = myDocs||[];
+  }
+
+  if (currentProfileTab==='saved') {
+    const {data:s,error} = await supabase
+      .from('saves')
+      .select('documentaries(*)')
+      .eq('user_id',currentUser.id);
+
+    if (error) throw error;
+    gridDocs = (s||[]).map(x=>x.documentaries).filter(Boolean);
+  }
+
+  if (currentProfileTab==='liked') {
+    const {data:l,error} = await supabase
+      .from('likes')
+      .select('documentaries(*)')
+      .eq('user_id',currentUser.id);
+
+    if (error) throw error;
+    gridDocs = (l||[]).map(x=>x.documentaries).filter(Boolean);
+  }
+
+  document.getElementById('profileGrid').innerHTML = gridDocs.map(d =>
+    `<img src="${escapeAttr(d.thumbnail_url||'')}" alt="${escapeAttr(d.title||'')}" onclick="showPage('feed')">`
+  ).join('') || '<p style="grid-column:1/-1;text-align:center;color:#999">Empty</p>';
+}
+
+function setProfileTab(tab,btn) {
+  currentProfileTab = tab;
+  document.querySelectorAll('#profilePage .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  loadProfile().catch(error=>alert(friendlyError(error)));
+}
+
+async function editProfile() {
+  const bio = prompt('New bio:',document.getElementById('profileBio').textContent);
+  if (bio===null) return;
+
+  const {error} = await supabase
+    .from('profiles')
+    .update({bio:bio})
+    .eq('id',currentUser.id);
+
+  if (error) {
+    alert(friendlyError(error));
+    return;
+  }
+
+  await loadProfile();
+}
+
+async function shareProfile() {
+  const url = window.location.href;
+
+  try {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      alert('Profile link copied!');
+    } else {
+      alert(url);
+    }
+  } catch(error) {
+    alert(url);
+  }
+}
+
+function openSettings() {
+  showPage('settings');
+}
+
+/* =====================================
+   SAVE PROFILE SETTINGS
+===================================== */
+
+async function saveSettings() {
+  const bio = document.getElementById('settingsBio').value;
+  const file = document.getElementById('settingsAvatar').files[0];
+
+  showLoader('Saving settings...');
+
+  try {
+    let avatar_url = null;
+
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please select an image file.');
+      }
+
+      if (file.size>5*1024*1024) {
+        throw new Error('Profile image must be smaller than 5 MB.');
+      }
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      const path = `${currentUser.id}/${Date.now()}-${safeName}`;
+
+      const {error:uploadError} = await supabase.storage
+        .from('avatars')
+        .upload(path,file);
+
+      if (uploadError) throw uploadError;
+
+      avatar_url = supabase.storage
+        .from('avatars')
+        .getPublicUrl(path).data.publicUrl;
+    }
+
+    const update = {bio:bio};
+    if (avatar_url) update.avatar_url = avatar_url;
+
+    const {error} = await supabase
+      .from('profiles')
+      .update(update)
+      .eq('id',currentUser.id);
+
+    if (error) throw error;
+
+    alert('Settings saved successfully!');
+    await loadProfile();
+    showPage('profile');
+
+  } catch(error) {
+    alert(friendlyError(error));
+  } finally {
+    hideLoader();
+  }
+}
+
+/* =====================================
+   UPLOAD DOCUMENTARY
+===================================== */
+
+async function uploadDoc() {
+  const title = document.getElementById('docTitle').value.trim();
+  const description = document.getElementById('docDesc').value.trim();
+  const category = document.getElementById('docCat').value.trim()||'Nature';
+  const videoFile = document.getElementById('docVideo').files[0];
+  const thumbFile = document.getElementById('docThumb').files[0];
+
+  if (!title) {
+    alert('Add a documentary title.');
+    return;
+  }
+
+  if (!videoFile && !thumbFile) {
+    alert('Choose a video or thumbnail to upload.');
+    return;
+  }
+
+  const msg = document.getElementById('uploadMsg');
+  msg.textContent = 'Uploading...';
+
+  showLoader('Uploading documentary...');
+
+  try {
+    let video_url = null;
+    let thumbnail_url = null;
+
+    if (videoFile) {
+      if (!videoFile.type.startsWith('video/')) {
+        throw new Error('Please select a video file.');
+      }
+
+      const safeName = videoFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      const path = `${currentUser.id}/${Date.now()}-${safeName}`;
+
+      const {error} = await supabase.storage
+        .from('videos')
+        .upload(path,videoFile);
+
+      if (error) throw error;
+
+      video_url = supabase.storage
+        .from('videos')
+        .getPublicUrl(path).data.publicUrl;
+    }
+
+    if (thumbFile) {
+      if (!thumbFile.type.startsWith('image/')) {
+        throw new Error('Please select an image for the thumbnail.');
+      }
+
+      const safeName = thumbFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      const path = `${currentUser.id}/${Date.now()}-${safeName}`;
+
+      const {error} = await supabase.storage
+        .from('thumbnails')
+        .upload(path,thumbFile);
+
+      if (error) throw error;
+
+      thumbnail_url = supabase.storage
+        .from('thumbnails')
+        .getPublicUrl(path).data.publicUrl;
+    }
+
+    const {error} = await supabase.from('documentaries').insert({
+      title:title,
+      description:description,
+      category:category,
+      video_url:video_url,
+      thumbnail_url:thumbnail_url,
+      author_id:currentUser.id
+    });
+
+    if (error) throw error;
+
+    msg.textContent = 'Posted successfully!';
+
+    document.getElementById('docTitle').value = '';
+    document.getElementById('docDesc').value = '';
+    document.getElementById('docCat').value = '';
+    document.getElementById('docVideo').value = '';
+    document.getElementById('docThumb').value = '';
+
+    await loadFeed();
+    await loadProfile();
+    showPage('feed');
+
+  } catch(error) {
+    msg.textContent = friendlyError(error);
+    alert(friendlyError(error));
+  } finally {
+    hideLoader();
+  }
+}
+
+/* =====================================
+   NOTIFICATIONS
+===================================== */
+
+async function loadNotifications() {
+  const {data,error} = await supabase
+    .from('notifications')
+    .select('*, profiles!notifications_actor_id_fkey(name,avatar_url), documentaries(title)')
+    .eq('user_id',currentUser.id)
+    .order('created_at',{ascending:false})
+    .limit(20);
+
+  if (error) {
+    document.getElementById('notifList').textContent = friendlyError(error);
+    return;
+  }
+
+  document.getElementById('notifList').innerHTML = (data||[]).map(n => `
+    <div class="notif">
+      <img src="${escapeAttr(n.profiles?.avatar_url||'')}" alt="">
+      <div>
+        <b style="font-size:13px">${escapeHTML(n.profiles?.name||'')}</b>
+        <p style="font-size:13px">${
+          n.type==='follow'
+            ? 'started following you'
+            : escapeHTML(n.type||'')+'d your documentary: '+escapeHTML(n.documentaries?.title||'')
+        }</p>
+      </div>
+    </div>
+  `).join('') || '<p>No notifications yet</p>';
+}
+
+/* =====================================
+   CATEGORY FILTER
+===================================== */
+
+function setCat(cat,btn) {
+  currentCat = cat;
+
+  document.querySelectorAll('#feedPage .pill').forEach(p=>p.classList.remove('active'));
+
+  if (btn) btn.classList.add('active');
+
+  loadFeed().catch(error=>console.error(error));
+}
+
+/* =====================================
+   NAVIGATION
+===================================== */
+
+function showPage(page,btn) {
+  const pages = [
+    'feedPage',
+    'profilePage',
+    'uploadPage',
+    'notificationsPage',
+    'settingsPage'
+  ];
+
+  pages.forEach(id=>document.getElementById(id).classList.add('hidden'));
+
+  const target = document.getElementById(page+'Page');
+  if (target) target.classList.remove('hidden');
+
+  if (btn) {
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  document.getElementById('mainScroll').scrollTop = 0;
+
+  if (page==='feed') {
+    loadFeed().catch(error=>console.error(error));
+  }
+
+  if (page==='profile') {
+    loadProfile().catch(error=>console.error(error));
+  }
+
+  if (page==='notifications') {
+    loadNotifications().catch(error=>console.error(error));
+  }
+}
+
+/* =====================================
+   HTML SAFETY HELPERS
+===================================== */
+
+function escapeHTML(value) {
+  return String(value??'').replace(/[&<>"']/g,char=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  })[char]);
+}
+
+function escapeAttr(value) {
+  return escapeHTML(value);
+}
+
+/* =====================================
+   SIGNUP EVENT LISTENERS
+===================================== */
+
+document.addEventListener('DOMContentLoaded',function() {
+
+  const events = [
+    ['createAccountLink',function(e){e.preventDefault();openSignupWizard();}],
+    ['next1',()=>wizardNext(1)],
+    ['next2',()=>wizardNext(2)],
+    ['next3',()=>wizardNext(3)],
+    ['next4',()=>wizardNext(4)],
+    ['next5',()=>wizardNext(5)],
+    ['back2',wizardBack],
+    ['back3',wizardBack],
+    ['back4',wizardBack],
+    ['back5',wizardBack],
+    ['back7',wizardBack],
+    ['back8',wizardBack],
+    ['agreeBtn',doAgree],
+    ['confirmedBtn',checkGmailConfirmed],
+    ['resendBtn',resendConfirm],
+    ['saveUsernameBtn',saveUsername],
+    ['continueBtn',goToAppFromSignup]
+  ];
+
+  events.forEach(([id,callback])=>{
+    const element = document.getElementById(id);
+    if (element) element.addEventListener('click',callback);
+  });
+
+  const findBtn = document.getElementById('findAccountBtn');
+
+  if (findBtn) {
+    findBtn.addEventListener('click',()=>{
+      const email = signupData.email;
+      closeSignupWizard();
+      document.getElementById('authEmail').value = email||'';
+    });
+  }
+
+  document.querySelectorAll('.gender-opt').forEach(el=>{
+    el.addEventListener('click',()=>{
+      signupData.gender = el.getAttribute('data-gender');
+
+      document.querySelectorAll('.gender-opt').forEach(item=>{
+        item.classList.remove('selected');
+      });
+
+      el.classList.add('selected');
+    });
+  });
+
+  const username = document.getElementById('suUsername');
+
+  username.addEventListener('input',()=>{
+    const value = username.value.toLowerCase().replace(/[^a-z0-9_.]/g,'');
+    username.value = value;
+    document.getElementById('usernamePreview').textContent = '@'+(value||'username');
+  });
+
+  const day = document.getElementById('suDay');
+
+  for (let i=1;i<=31;i++) {
+    const option = document.createElement('option');
+    option.value = String(i).padStart(2,'0');
+    option.textContent = i;
+    day.appendChild(option);
+  }
+
+  const year = document.getElementById('suYear');
+
+  for (let yr=new Date().getFullYear();yr>=1950;yr--) {
+    const option = document.createElement('option');
+    option.value = yr;
+    option.textContent = yr;
+    year.appendChild(option);
+  }
+
+  document.getElementById('eyeBtn').addEventListener('click',()=>{
+    const input = document.getElementById('authPass');
+    const show = input.type==='password';
+
+    input.type = show?'text':'password';
+    document.getElementById('eyeOpen').classList.toggle('hidden',show);
+    document.getElementById('eyeClosed').classList.toggle('hidden',!show);
+    document.getElementById('eyeBtn').classList.toggle('active',show);
+  });
+
+  document.getElementById('suEyeBtn').addEventListener('click',()=>{
+    const input = document.getElementById('suPass');
+    const show = input.type==='password';
+
+    input.type = show?'text':'password';
+    document.getElementById('suEyeOpen').classList.toggle('hidden',show);
+    document.getElementById('suEyeClosed').classList.toggle('hidden',!show);
+  });
+
+  /* Restore an existing login session once. */
+  restoreSession();
+});
+</script>
+
+</body>
+</html>
