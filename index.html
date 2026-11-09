@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Documentary - Login in to nature</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui,Arial,sans-serif;-webkit-tap-highlight-color:transparent!important}
+button,a,input,select,textarea,div{-webkit-tap-highlight-color:transparent!important;outline:none!important}
+button:focus,a:focus,input:focus,select:focus,textarea:focus{outline:none!important;box-shadow:none!important}
+button:active{opacity:.92}
+body{background:#fff;display:flex;justify-content:center;min-height:100vh}
+.hidden{display:none!important}
+.icon{width:22px;height:22px;flex-shrink:0;vertical-align:middle}
+.icon-sm{width:18px;height:18px}
+.nav-ic{width:24px;height:24px;display:block}
+#splash{position:fixed;inset:0;background:#fff;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#splash .s-logo{font-weight:900;font-size:28px}#splash .s-logo span{color:#FFC82E}
+#splash .s-spinner{width:36px;height:36px;border:4px solid #EEE;border-top:4px solid #FFC82E;border-radius:50%;animation:spin .8s linear infinite}
+#splash p{color:#888;font-size:13px}
+.phone{width:100%;max-width:430px;background:#fff;min-height:100vh;min-height:100dvh;position:relative;overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:500px){.phone{margin:18px 0;border-radius:42px;min-height:calc(100vh - 36px);border:9px solid #111;box-shadow:0 20px 60px rgba(0,0,0,.5)}}
+.scroll{flex:1;overflow-y:auto;padding-bottom:95px;background:#fff}
+.login-page{position:relative;height:100vh;height:100dvh;background:#0A1A3A;overflow-y:auto;display:flex;flex-direction:column;flex:1}
+.login-bg{height:32vh;min-height:230px;max-height:300px;position:relative;overflow:hidden;flex-shrink:0;background:radial-gradient(ellipse 90% 70% at 20% 15%,#1E4A9A 0%,transparent 60%),radial-gradient(ellipse 80% 60% at 85% 30%,#143A7A 0%,transparent 60%),linear-gradient(180deg,#0A1A3A 0%,#0E2A5C 45%,#071230 100%)}
+.login-card{position:relative;z-index:3;background:#fff;border-radius:26px 26px 0 0;padding:20px 22px 22px;margin-top:-26px;flex:1;display:flex;flex-direction:column}
+.login-card h2{font-size:32px;text-align:center;font-weight:900;color:#000}
+.login-sub{text-align:center;color:#444;font-size:15px;margin:6px 0 16px}
+.input-wrap{position:relative;margin-bottom:12px}
+.input-wrap input{width:100%;padding:14px 52px 14px 46px;border-radius:10px;border:none;background:#F3F3F3;font-size:16px;color:#111}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex}
+.eye{position:absolute;right:2px;top:50%;transform:translateY(-50%);cursor:pointer;background:transparent;border:none;padding:12px;min-width:48px;min-height:48px}
+.row-between{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin:4px 0 14px}
+.row-between label{display:flex;align-items:center;gap:8px}
+.row-between input[type=checkbox]{width:18px;height:18px;accent-color:#FFC82E;margin:0}
+.row-between a{color:#D4A800;text-decoration:none;font-weight:500}
+.btn-login{width:100%;padding:13px;border:none;border-radius:999px;background:#FFC82E;font-weight:700;font-size:21px;cursor:pointer;color:#fff;text-align:center;display:block;text-decoration:none}
+.or-text{text-align:center;color:#555;font-size:14px;margin:12px 0}
+.google-only{display:flex;justify-content:center}
+.google-only button{padding:13px 52px;border:1px solid #D9D9D9;background:#fff;border-radius:999px;cursor:pointer;font-size:17px;display:flex;align-items:center;gap:9px;color:#333;font-weight:500}
+.signup-text{text-align:center;font-size:14px;color:#555;margin-top:12px;white-space:nowrap}
+.signup-text a{color:#D4A800;text-decoration:none;font-weight:700;margin-left:4px}
+.wizard{position:absolute;inset:0;background:#fff;z-index:20;display:flex;flex-direction:column;overflow-y:auto}
+.wizard-card{background:#fff;padding:28px 22px 100px;flex:1;position:relative}
+.wizard-card h2{font-size:28px;font-weight:900;line-height:1.2}
+.wizard-card p{color:#666;font-size:14px;margin:8px 0 18px;line-height:1.5}
+.w-field{margin-bottom:12px}.w-field label{font-size:13px;font-weight:700;display:block;margin-bottom:6px}
+.w-field input,.w-field select{width:100%;padding:14px;border-radius:12px;border:none;background:#F3F3F3;font-size:16px;color:#111}
+.w-row{display:flex;gap:10px}
+.gender-opt{flex:1;padding:14px;border:2px solid #EEE;border-radius:14px;text-align:center;cursor:pointer;font-weight:600;font-size:14px;background:#F9F9F9;color:#111}
+.gender-opt.selected{border-color:#FFC82E;background:#FFF8E0}
+.err{color:#D32F2F;font-size:13px;margin-top:8px;text-align:center;min-height:18px}
+.wizard-footer{position:absolute;bottom:24px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;padding-top:10px}
+.wizard-footer.only-next{justify-content:flex-end}
+.btn-next{padding:14px 32px;border:none;border-radius:999px;background:#FFC82E;font-weight:700;font-size:17px;cursor:pointer;color:#fff}
+.btn-back-small{padding:14px 22px;border:1px solid #ddd;background:#fff;border-radius:999px;font-weight:600;font-size:15px;cursor:pointer;color:#111;text-decoration:none}
+.agree-text{font-size:16px!important;color:#111!important;line-height:1.6!important;margin:14px 0!important}
+.agree-text a{color:#D4A800;text-decoration:none;font-weight:600}
+.btn-agree{width:100%;padding:13px;border:none;border-radius:999px;background:#FFC82E;color:#fff;font-weight:700;font-size:17px;cursor:pointer;margin-top:30px}
+.gmail-box{background:#FFF8E0;border-radius:16px;padding:16px;text-align:center;margin:16px 0}
+#pageLoader{position:absolute;inset:0;background:rgba(255,255,255,.92);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-size:14px}
+#pageLoader .spinner{width:44px;height:44px;border:4px solid #EEE;border-top:4px solid #FFC82E;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+header{position:sticky;top:0;background:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10}
+.logo{font-weight:900;font-size:19px}.logo span{color:#FFC82E}
+.header-icons{display:flex;gap:14px;align-items:center}.header-icons a{color:#111;display:flex}
+/* ===== G LOGO - WHERE STAR WAS ===== */
+.g-logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#7B2FF7,#2563EB 35%,#FF2D92 65%,#FF8A00);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:19px;position:relative;overflow:hidden;flex-shrink:0;cursor:pointer;box-shadow:0 2px 8px rgba(123,47,247,.35)}
+.g-logo::after{content:"";position:absolute;width:140%;height:3px;background:#fff;transform:rotate(-35deg);bottom:6px;left:-5px;opacity:.9}
+.g-logo.big{width:42px;height:42px;font-size:24px;border-radius:11px}
+.g-logo.small{width:24px;height:24px;font-size:14px;border-radius:6px}
+.searchbar{margin:0 16px 12px;background:#F5F5F5;border-radius:999px;padding:10px 14px;color:#888;font-size:14px;display:flex;align-items:center;gap:8px}
+.searchbar input{border:none;background:transparent;outline:none;width:100%;font-size:14px;color:#111}
+.stories{display:flex;gap:14px;overflow-x:auto;padding:4px 16px 12px;scrollbar-width:none}
+.story{text-align:center;min-width:62px;cursor:pointer;position:relative}.story img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:3px solid #FFC82E}.story span{font-size:11px;display:block;margin-top:4px}
+.story .add-badge{position:absolute;bottom:20px;right:2px;width:20px;height:20px;background:#FFC82E;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900}
+.story.your-story img{border-color:#DDD}.story.has-story img{border-color:#FFC82E}.story.seen img{border-color:#DDD}
+.pills{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;scrollbar-width:none}.pill{padding:8px 16px;border-radius:999px;background:#F0F0F0;border:none;white-space:nowrap;cursor:pointer;font-size:13px;color:#111;text-decoration:none}.pill.active{background:#FFC82E;font-weight:700}
+.card{background:#fff;margin:0 16px 16px;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.card-top{display:flex;justify-content:space-between;align-items:center;padding:12px}.card-top .user{display:flex;gap:10px;align-items:center}.card-top img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#eee}
+.follow-btn{border:1.5px solid #FFC82E;border-radius:999px;padding:7px 16px;background:#fff;font-weight:700;font-size:12px;cursor:pointer}.follow-btn.following{background:#111;color:#fff;border-color:#111}.follow-btn.you{background:#F5F5F5;border-color:#EEE;color:#888}
+.media{position:relative;background:#000}.media img,.media video{width:100%;height:230px;object-fit:cover;display:block}.duration{position:absolute;bottom:10px;left:10px;background:#FFC82E;font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px}
+.play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.card-body{padding:12px 14px}.card-body h3{font-size:16px}.card-body p{color:#666;font-size:13px;margin:4px 0 10px}
+.actions{display:flex;gap:18px;font-size:13px;align-items:center}.actions button{border:none;background:none;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:5px}
+.settings-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.settings-avatar{position:relative;width:84px;height:84px;flex-shrink:0}.settings-avatar img{width:84px;height:84px;border-radius:50%;object-fit:cover;background:#F0F0F0;border:3px solid #FFC82E}
+.settings-avatar .cam{position:absolute;bottom:0;right:0;width:30px;height:30px;background:#FFC82E;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;cursor:pointer}
+.set-card{background:#fff;border:1px solid #EEE;border-radius:16px;padding:16px;margin-bottom:12px}.set-card h3{font-size:15px;margin-bottom:12px}
+.set-field{margin-bottom:12px}.set-field label{font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:6px;text-transform:uppercase}
+.set-field input,.set-field select,.set-field textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #EEE;background:#F8F8F8;font-size:15px;color:#111}
+.set-field textarea{min-height:70px;resize:vertical}
+.readonly-row{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border-radius:12px;background:#F2F2F2;border:1px solid #EAEAEA;margin-bottom:12px}
+.readonly-row .ro-label{font-size:12px;font-weight:700;color:#555;text-transform:uppercase}.readonly-row .ro-value{font-size:15px;font-weight:600}
+.file-drop{border:2px dashed #E5E5E5;border-radius:16px;padding:18px;text-align:center;cursor:pointer;background:#FAFAFA}
+.file-drop:hover,.file-drop.has-file{border-color:#FFC82E;background:#FFF8E0}
+.file-drop .file-ic{width:44px;height:44px;background:#FFC82E;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.file-drop b{font-size:14px;display:block}.file-drop span{font-size:12px;color:#888}.file-drop .file-name{font-size:13px;font-weight:600;margin-top:6px;word-break:break-all}
+.file-drop img.preview,.file-drop video.preview{width:100%;height:120px;object-fit:cover;border-radius:12px;margin-top:10px}
+.explore-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 16px 16px}
+.explore-grid .ex-item{position:relative;border-radius:12px;overflow:hidden;cursor:pointer;background:#eee;aspect-ratio:3/4}
+.explore-grid .ex-item img{width:100%;height:100%;object-fit:cover;display:block}
+.explore-grid .ex-item .ex-meta{position:absolute;bottom:0;left:0;right:0;padding:20px 8px 8px;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font-size:11px}
+.explore-creator{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid #F0F0F0}.explore-creator img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#eee}
+.notif-card{display:flex;gap:12px;padding:14px 16px;background:#fff;border-radius:16px;margin:0 16px 10px;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+.notif-card img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#eee}
+.profile-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}.profile-top button{border:none;background:none;font-size:18px;cursor:pointer}.profile-top a{color:#111;text-decoration:none;font-size:18px;display:flex}
+.profile-center{text-align:center;padding:4px 16px}.profile-center .big{width:170px;height:170px;border-radius:50%;object-fit:cover}.profile-center h2{font-size:26px;margin-top:12px}.profile-center .handle{color:#666;font-size:14px}.profile-center .bio{font-size:14px;color:#333;margin-top:8px}
+.stats{display:flex;justify-content:center;gap:32px;margin:16px 0}.stats b{display:block;font-size:18px}.stats span{font-size:12px;color:#666}
+.profile-btns{display:flex;gap:10px}.btn{width:100%;padding:14px;border:none;border-radius:12px;background:#FFC82E;font-weight:800;font-size:16px;cursor:pointer;text-decoration:none;color:#111;text-align:center;display:block}.btn-outline{background:#fff;border:1px solid #ddd;margin-top:10px}
+.tabs{display:flex;gap:8px;padding:12px 16px}.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px}.grid img{width:100%;height:110px;object-fit:cover;border-radius:12px;cursor:pointer}
+.pad{padding:16px}label{font-size:13px;font-weight:700;display:block;margin:12px 0 6px}textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;min-height:70px}input{width:100%;padding:14px;border-radius:12px;border:1px solid #E5E5E5;background:#F8F8F8;margin-bottom:12px;font-size:15px}
+.comment{padding:10px 0;border-bottom:1px solid #f0f0f0;display:flex;gap:10px}.comment img{width:32px;height:32px;border-radius:50%;object-fit:cover}
+nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 0 14px;z-index:20}nav a{color:#888;text-decoration:none;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}nav a.active{color:#111;font-weight:700}.fab{background:#FFC82E!important;width:52px;height:52px;border-radius:50%!important;margin-top:-26px;box-shadow:0 4px 12px rgba(0,0,0,.2);justify-content:center;display:flex!important;align-items:center}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:50}.modal-box{background:#fff;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:18px;max-height:75vh;overflow-y:auto}
+.story-viewer{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;justify-content:center}
+.story-viewer img,.story-viewer video{width:100%;max-height:82vh;object-fit:contain}
+.story-viewer-top{position:absolute;top:0;left:0;right:0;padding:14px;display:flex;gap:10px;align-items:center;color:#fff;background:linear-gradient(rgba(0,0,0,.6),transparent);z-index:2}
+.story-viewer-top img{width:36px!important;height:36px!important;border-radius:50%;object-fit:cover}
+.story-progress{position:absolute;top:8px;left:12px;right:12px;height:3px;background:rgba(255,255,255,.3);border-radius:99px;overflow:hidden;z-index:3}
+.story-progress div{height:100%;background:#fff;width:0%}
+.story-viewer-close{position:absolute;top:14px;right:12px;z-index:4;background:rgba(0,0,0,.5);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer}
+.story-viewer-nav{position:absolute;top:0;bottom:0;width:40%;z-index:1}
+/* ===== G AI MODAL ===== */
+.g-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:99999}
+.g-modal.open{display:flex}
+.g-sheet{background:#fff;width:100%;max-width:430px;height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.g-head{display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid #eee}
+.g-head .close{margin-left:auto;font-size:22px;cursor:pointer;border:none;background:none}
+.g-quick{display:flex;gap:8px;flex-wrap:wrap;padding:12px}
+.g-quick button{background:#F0E6FF;border:none;color:#7B2FF7;padding:7px 12px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer}
+.g-chat{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.g-msg{max-width:85%;padding:11px 13px;border-radius:16px;font-size:14px;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+.g-msg.g{background:#F5F5F5;align-self:flex-start}
+.g-msg.user{background:#7B2FF7;color:#fff;align-self:flex-end}
+.g-input{display:flex;gap:8px;padding:12px;border-top:1px solid #eee}
+.g-input input{flex:1;background:#F5F5F5;border:none;outline:none;border-radius:22px;padding:0 14px;height:44px;font-size:14px}
+.g-input button{background:#7B2FF7;color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer}
+.ai-banner{display:flex;align-items:center;gap:12px;margin:0 16px 16px;background:#F8F0FF;border:1px solid #E8D5FF;padding:12px;border-radius:16px;cursor:pointer}
+</style>
+<script>
+try{var hasSession=false;for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('sb-')===0&&k.indexOf('auth-token')!==-1){var v=localStorage.getItem(k);if(v&&v.indexOf('access_token')!==-1)hasSession=true;}}var isSignup=window.location.search.indexOf('step=')!==-1;var isGoogleReturn=window.location.hash.indexOf('access_token')!==-1;if((hasSession||isGoogleReturn)&&!isSignup){document.write('<style>#loginPage{display:none!important} #app{display:flex!important}</style>');}}catch(e){}
+</script>
+</head>
+<body>
+<div id="splash"><div class="s-logo">Documentary<span>.</span></div><div class="s-spinner"></div><p>Loading...</p></div>
+<div class="phone">
+<div id="pageLoader" class="hidden"><div class="spinner"></div><div>Loading...</div></div>
+
+<!-- LOGIN -->
+<div id="loginPage" class="login-page">
+  <div class="login-bg"></div>
+  <form class="login-card" autocomplete="off" onsubmit="return false">
+    <h2>Welcome Back</h2><p class="login-sub">Login in to nature</p>
+    <div class="input-wrap"><span class="input-icon">📧</span><input id="authEmail" placeholder="Email" type="text" autocomplete="off"></div>
+    <div class="input-wrap"><span class="input-icon">🔒</span><input id="authPass" type="password" placeholder="Password" autocomplete="new-password"><button type="button" class="eye" id="eyeBtn">👁️</button></div>
+    <div class="row-between"><label><input type="checkbox" checked> Keep me signed in</label><a href="#" onclick="forgotPass();return false">Forgot Password?</a></div>
+    <button class="btn-login" type="button" onclick="doLogin(this)">Log In</button>
+    <p class="or-text">Or continue with</p>
+    <div class="google-only"><button type="button" onclick="loginGoogle()">G Google</button></div>
+    <p class="signup-text">Don't have an account?<a href="?step=1">Create account</a></p>
+    <p id="authMsg" style="text-align:center;color:red;font-size:13px;margin-top:8px"></p>
+  </form>
+  <div id="signupWizard" class="wizard hidden"><div class="wizard-card">
+    <div id="step1"><h2>What's your name?</h2><div class="w-field"><label>First name</label><input id="suFirst"></div><div class="w-field"><label>Second name</label><input id="suSecond"></div><div class="wizard-footer only-next"><button class="btn-next" type="button" onclick="wizardNext(1)">Next →</button></div></div>
+    <div id="step2" class="hidden"><h2>When were you born?</h2><div class="w-row"><div class="w-field" style="flex:1"><label>Day</label><select id="suDay"><option value="">Day</option></select></div><div class="w-field" style="flex:1.3"><label>Month</label><select id="suMonth"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select></div><div class="w-field" style="flex:1"><label>Year</label><select id="suYear"><option value="">Year</option></select></div></div><div class="wizard-footer"><a class="btn-back-small" href="?step=1">Back</a><button class="btn-next" type="button" onclick="wizardNext(2)">Next →</button></div></div>
+    <div id="step3" class="hidden"><h2>What's your gender?</h2><div style="display:flex;gap:10px"><button class="gender-opt" type="button" data-gender="Female" onclick="pickGender(this)">Female</button><button class="gender-opt" type="button" data-gender="Male" onclick="pickGender(this)">Male</button><button class="gender-opt" type="button" data-gender="Rather not say" onclick="pickGender(this)">Rather not say</button></div><div class="wizard-footer"><a class="btn-back-small" href="?step=2">Back</a><button class="btn-next" type="button" onclick="wizardNext(3)">Next →</button></div></div>
+    <div id="step4" class="hidden"><h2>Your Google account</h2><div class="w-field"><label>Google account (Email)</label><input id="suEmail"></div><div class="wizard-footer"><a class="btn-back-small" href="?step=3">Back</a><button class="btn-next" type="button" onclick="wizardNext(4)">Next →</button></div></div>
+    <div id="step5" class="hidden"><h2>Create a password</h2><div class="w-field"><label>Password</label><input id="suPass" type="password"></div><div class="w-field"><label>Confirm password</label><input id="suPass2" type="password"></div><div class="wizard-footer"><a class="btn-back-small" href="?step=4">Back</a><button class="btn-next" type="button" onclick="wizardNext(5)">Next →</button></div></div>
+    <div id="step6" class="hidden"><h2>Agree to Documentary's terms</h2><p class="agree-text">By tapping <b>I agree</b>, you agree to create an account and to Documentary's terms, Privacy Policy and Cookies Policy.</p><button class="btn-agree" type="button" onclick="doAgree(this)">I agree</button></div>
+    <div id="step7" class="hidden"><h2>Check your Gmail</h2><div class="gmail-box"><b id="gmailConfirmEmail"></b><p>Open Gmail, tap the link, then come back.</p></div><button class="btn-login" type="button" onclick="checkGmailConfirmed(this)">I've confirmed in Gmail →</button><button class="btn-login" type="button" onclick="resendConfirm()" style="background:#fff;color:#D4A800;border:1px solid #ddd;margin-top:10px">Resend email</button></div>
+    <div id="step8" class="hidden"><h2>Set your username</h2><div class="w-field"><label>Username</label><input id="suUsername" style="text-transform:lowercase"></div><p id="usernamePreview">@username</p><div class="wizard-footer"><a class="btn-back-small" href="?step=7">Back</a><button class="btn-next" type="button" onclick="saveUsername(this)">Next →</button></div></div>
+    <div id="step9" class="hidden"><h2>You're now logged in!</h2><p>Welcome to Documentary.</p><div class="wizard-footer only-next"><button class="btn-next" type="button" onclick="goToAppFromSignup()">Continue →</button></div></div>
+    <p class="err" id="wizardErr"></p>
+  </div></div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden" style="display:flex;flex-direction:column;flex:1;min-height:100%;background:#fff">
+  <div class="scroll">
+    <div id="feedPage">
+      <header><div class="logo">Documentary<span>.</span></div><div class="header-icons"><a href="?page=explore">🔍</a><a href="?page=notifications">🔔</a><div class="g-logo" onclick="openGAI()" title="Ask G">G</div></div></header>
+      <div class="searchbar">🔍<input id="searchInput" placeholder="Search documentaries, creators..." oninput="onSearch(this.value)"><button id="clearSearch" class="hidden" onclick="clearSearch()" style="border:none;background:none;font-size:16px">✕</button></div>
+      <input id="storyFileInput" type="file" accept="image/*,video/*" class="hidden">
+      <div class="stories" id="stories"></div>
+      <div class="pills"><a class="pill active" href="#" onclick="setCat('All',this);return false">All</a><a class="pill" href="#" onclick="setCat('Nature',this);return false">Nature</a><a class="pill" href="#" onclick="setCat('History',this);return false">History</a><a class="pill" href="#" onclick="setCat('True Crime',this);return false">True Crime</a><a class="pill" href="#" onclick="setCat('Science',this);return false">Science</a><a class="pill" href="#" onclick="setCat('Culture',this);return false">Culture</a></div>
+      <div id="searchResults" class="hidden" style="padding:0 16px 10px"><b id="searchTitle"></b></div>
+      <div class="ai-banner" onclick="openGAI()"><div class="g-logo big">G</div><div style="flex:1"><b>Ask G - Your AI Guide</b><br><span style="font-size:12px;color:#666">Find, explain & recommend documentaries</span></div><span style="font-size:20px">›</span></div>
+      <div id="feedList"><p style="padding:0 16px">Loading...</p></div>
+    </div>
+    <div id="explorePage" class="hidden">
+      <header><div class="logo">Explore<span>.</span></div><a href="?page=notifications" style="color:#111">🔔</a></header>
+      <div class="searchbar">🔍<input id="exploreSearch" placeholder="Search documentaries, creators..." oninput="onExploreSearch(this.value)"></div>
+      <div class="pills"><a class="pill active" href="#" onclick="setExploreCat('All',this);return false">All</a><a class="pill" href="#" onclick="setExploreCat('Nature',this);return false">Nature</a><a class="pill" href="#" onclick="setExploreCat('History',this);return false">History</a><a class="pill" href="#" onclick="setExploreCat('True Crime',this);return false">True Crime</a><a class="pill" href="#" onclick="setExploreCat('Science',this);return false">Science</a><a class="pill" href="#" onclick="setExploreCat('Culture',this);return false">Culture</a></div>
+      <div style="padding:4px 16px 10px"><b>Discover</b><p style="font-size:13px;color:#888">Trending documentaries & creators</p></div>
+      <div id="exploreCreators"></div><div class="explore-grid" id="exploreGrid"></div><p id="exploreEmpty" class="hidden" style="text-align:center;color:#999;padding:30px">No results.</p>
+    </div>
+    <div id="profilePage" class="hidden">
+      <div class="profile-top"><a href="?page=feed">←</a><span style="font-weight:800">Profile</span><a href="?page=settings">⚙️</a></div>
+      <div class="profile-center"><img id="profileAvatar" class="big" src=""><h2 id="profileName"></h2><p class="handle" id="profileHandle"></p><p class="bio" id="profileBio"></p><div class="stats"><div><b id="statDocs">0</b><span>Documentaries</span></div><div><b id="statFollowers">0</b><span>Followers</span></div><div><b id="statFollowing">0</b><span>Following</span></div></div><div class="profile-btns"><button class="btn" onclick="goSettings()">Edit Profile</button><button class="btn btn-outline" onclick="shareProfile()">Share Profile</button></div></div>
+      <div class="tabs"><a class="pill active" href="#" onclick="setProfileTab('mine',this);return false">Documentaries</a><a class="pill" href="#" onclick="setProfileTab('saved',this);return false">Saved</a><a class="pill" href="#" onclick="setProfileTab('liked',this);return false">Liked</a></div><div class="grid" id="profileGrid"></div>
+    </div>
+    <div id="uploadPage" class="hidden pad">
+      <h2>Create Documentary</h2><p style="color:#666;font-size:13px">Share a real story</p>
+      <label>Title</label><input id="docTitle" placeholder="The Last Glacier">
+      <label>Description</label><textarea id="docDesc" placeholder="A journey..."></textarea>
+      <label>Category</label><select id="docCat" style="width:100%;padding:14px;border-radius:12px;border:1px solid #EEE;background:#F8F8F8;margin-bottom:12px"><option>Nature</option><option>History</option><option>True Crime</option><option>Science</option><option>Culture</option></select>
+      <label>Video File</label><input id="docVideo" type="file" accept="video/*" class="hidden">
+      <div class="file-drop" id="videoDrop" onclick="document.getElementById('docVideo').click()"><div class="file-ic">🎬</div><b id="videoDropTitle">Tap to upload video</b><span>MP4, MOV • Up to 500MB</span><div class="file-name" id="videoFileName"></div><video id="videoPreview" class="preview hidden" controls></video></div>
+      <label style="margin-top:16px">Thumbnail</label><input id="docThumb" type="file" accept="image/*" class="hidden">
+      <div class="file-drop" id="thumbDrop" onclick="document.getElementById('docThumb').click()"><div class="file-ic">🖼️</div><b id="thumbDropTitle">Tap to upload thumbnail</b><span>JPG, PNG • 16:9</span><div class="file-name" id="thumbFileName"></div><img id="thumbPreview" class="preview hidden"></div>
+      <button class="btn" onclick="uploadDoc()" style="margin-top:16px">Post Documentary</button><p id="uploadMsg"></p>
+    </div>
+    <div id="notificationsPage" class="hidden">
+      <header><div class="logo">Notifications<span>.</span></div><button onclick="markAllRead()" style="border:none;background:none;color:#B89600;font-weight:700;font-size:13px">Mark all read</button></header>
+      <div style="display:flex;gap:8px;padding:0 16px 12px"><button class="pill active" onclick="setNotifTab('all',this)">All</button><button class="pill" onclick="setNotifTab('like',this)">Likes</button><button class="pill" onclick="setNotifTab('follow',this)">Follows</button><button class="pill" onclick="setNotifTab('comment',this)">Comments</button></div>
+      <div id="notifList"></div><div id="notifEmpty" class="hidden" style="text-align:center;padding:50px 20px"><b>No notifications yet</b><p style="color:#888">When someone likes, comments or follows you, you'll see it here.</p></div>
+    </div>
+    <div id="settingsPage" class="hidden pad">
+      <h2>Settings</h2><p style="color:#888;font-size:13px">Manage your personal information</p>
+      <div class="set-card"><div class="settings-head"><div class="settings-avatar"><img id="settingsAvatarPreview" src=""><label class="cam" for="settingsAvatar">📷</label><input id="settingsAvatar" type="file" accept="image/*" class="hidden"></div><div><b id="settingsPreviewName">Your Name</b><p id="settingsPreviewHandle">@username</p></div></div>
+        <div class="set-field"><label>Full Name</label><input id="settingsName"></div>
+        <div class="set-field"><label>Username</label><input id="settingsUsername"></div>
+        <div class="set-field"><label>Bio</label><textarea id="settingsBio"></textarea></div>
+        <div class="set-field"><label>Location</label><input id="settingsLocation" placeholder="Eldoret, Kenya"></div></div>
+      <div class="set-card"><h3>Personal Information</h3>
+        <div class="readonly-row"><span class="ro-label">Email</span><span class="ro-value" id="settingsEmailDisplay">—</span></div>
+        <div class="readonly-row"><span class="ro-label">Gender</span><span class="ro-value" id="settingsGenderDisplay">—</span></div>
+        <div class="readonly-row"><span class="ro-label">Date of Birth</span><span class="ro-value" id="settingsDobDisplay">—</span></div></div>
+      <button class="btn" onclick="saveSettings()">Save Settings</button>
+      <button class="btn btn-outline" style="margin-top:10px;color:red" onclick="doLogout()">Log Out</button>
+      <a class="btn btn-outline" style="margin-top:10px" href="?page=profile">Back to Profile</a>
+      <p id="settingsMsg" style="text-align:center;color:#2E7D32;margin-top:10px"></p>
+    </div>
+  </div>
+  <nav>
+    <a id="nav-feed" class="active" href="?page=feed">⌂ Home</a>
+    <a id="nav-explore" href="?page=explore">◎ Explore</a>
+    <a class="fab" href="?page=upload">+</a>
+    <a id="nav-notifications" href="?page=notifications">🔔 Notifications</a>
+    <a id="nav-profile" href="?page=profile">○ Profile</a>
+  </nav>
+</div>
+
+<div id="commentModal" class="modal hidden"><div class="modal-box"><div style="display:flex;justify-content:space-between"><b>Comments</b><button onclick="closeComments()" style="border:none;background:none;font-size:18px">✕</button></div><div id="commentList" style="margin-top:12px"></div><div style="display:flex;gap:8px;margin-top:12px"><input id="commentInput" placeholder="Add a comment..."><button class="btn" style="width:80px" onclick="postComment()">Post</button></div></div></div>
+<div id="storyViewer" class="story-viewer hidden"><div class="story-progress"><div id="storyProgressBar"></div></div><button class="story-viewer-close" onclick="closeStoryViewer()">✕</button><div class="story-viewer-top"><img id="storyViewerAvatar" src=""><div><b id="storyViewerName" style="display:block;font-size:14px"></b><span id="storyViewerTime" style="font-size:12px;color:#DDD"></span></div></div><div id="storyViewerMedia"></div><div class="story-viewer-nav" style="left:0" onclick="prevStory()"></div><div class="story-viewer-nav" style="right:0" onclick="nextStory()"></div></div>
+
+<!-- G AI MODAL -->
+<div class="g-modal" id="gModal">
+  <div class="g-sheet">
+    <div class="g-head"><div class="g-logo big">G</div><div><b style="font-size:17px">G AI</b><br><span style="color:#2ecc71;font-size:12px">● Online - Documentary Assistant</span></div><button class="close" onclick="closeGAI()">✕</button></div>
+    <div class="g-quick"><button onclick="askG('Recommend something')">Recommend something</button><button onclick="askG('Summarize The Last Glacièr')">Summarize The Last Glacièr</button><button onclick="askG('What is Culture?')">What is Culture?</button></div>
+    <p style="text-align:center;font-size:12px;color:#888;margin:-4px 0 4px">Ask me anything — homework, coding, science, jokes, life ✨</p>
+    <div class="g-chat" id="gChat"><div class="g-msg g"><div class="g-logo small">G</div><span>Hi, I’m G ✨ Your Documentary AI. Ask me to find, explain or recommend a documentary.</span></div></div>
+    <div class="g-input"><input id="gInput" placeholder="Ask G anything..." onkeydown="if(event.key==='Enter') sendG()"><button onclick="sendG()">↑</button></div>
+  </div>
+</div>
+</div>
+
+<script>
+var SUPABASE_URL="https://grsriizukjxfoxscqgoo.supabase.co";
+var SUPABASE_KEY="sb_publishable_d3pb06qC7fhm2CMg1R0jWA_KILlHlXJ";
+var APP_URL="https://madinaatieno.github.io/Documentary";
+var sbClient=null; try{sbClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){}
+function hideSplash(){var s=document.getElementById('splash');if(s)s.style.display='none';}
+function showLoader(t){var l=document.getElementById('pageLoader');if(!l)return;if(t)l.querySelector('div:last-child').textContent=t;l.classList.remove('hidden');}
+function hideLoader(){var l=document.getElementById('pageLoader');if(l)l.classList.add('hidden');}
+function goSettings(){window.location.href='?page=settings';}
+var signupData={first:'',second:'',day:'',month:'',year:'',gender:'',email:'',password:'',username:''};
+var wizardStep=1,DRAFT_KEY='documentary_signup_draft',searchQuery='',exploreCat='All',exploreQuery='',notifTab='all';
+function getStepFromURL(){var q=new URLSearchParams(window.location.search).get('step');return q?parseInt(q,10):0;}
+function getPageFromURL(){var q=new URLSearchParams(window.location.search).get('page');return q||'';}
+function reloadDraft(){try{var raw=sessionStorage.getItem(DRAFT_KEY);if(raw){var p=JSON.parse(raw);if(p&&p.data)signupData=Object.assign(signupData,p.data);}}catch(e){}}
+function saveDraft(){try{reloadDraft();sessionStorage.setItem(DRAFT_KEY,JSON.stringify({step:wizardStep,data:signupData}));}catch(e){}}
+function clearDraft(){try{sessionStorage.removeItem(DRAFT_KEY);}catch(e){}}
+function clearLoginFields(){try{var a=document.getElementById('authEmail'),b=document.getElementById('authPass');if(a)a.value='';if(b)b.value='';}catch(e){}}
+function fillFromDraft(){var set=function(id,val){var el=document.getElementById(id);if(el&&val)el.value=val;};set('suFirst',signupData.first);set('suSecond',signupData.second);set('suDay',signupData.day);set('suMonth',signupData.month);set('suYear',signupData.year);set('suEmail',signupData.email);set('suPass',signupData.password);set('suPass2',signupData.password);set('suUsername',signupData.username);if(signupData.username){var p=document.getElementById('usernamePreview');if(p)p.textContent='@'+signupData.username;}if(signupData.email){var g=document.getElementById('gmailConfirmEmail');if(g)g.textContent=signupData.email;}if(signupData.gender)document.querySelectorAll('.gender-opt').forEach(function(x){x.classList.toggle('selected',x.getAttribute('data-gender')===signupData.gender);});}
+function restoreFromURL(){try{reloadDraft();var step=getStepFromURL();if(step>=1&&step<=9){wizardStep=step;fillFromDraft();document.getElementById('signupWizard').classList.remove('hidden');for(var i=1;i<=9;i++){var el=document.getElementById('step'+i);if(el)el.classList.toggle('hidden',i!==step);}return true;}return false;}catch(e){return false;}}
+function pickGender(btn){signupData.gender=btn.getAttribute('data-gender');document.querySelectorAll('.gender-opt').forEach(function(x){x.classList.remove('selected');});btn.classList.add('selected');saveDraft();setTimeout(function(){window.location.href='?step=4';},150);}
+function wizardNext(step){var err=document.getElementById('wizardErr');if(step===1){var f=document.getElementById('suFirst').value.trim(),s=document.getElementById('suSecond').value.trim();if(!f||!s){err.textContent='Please enter first and second name';return;}signupData.first=f;signupData.second=s;saveDraft();window.location.href='?step=2';return;}if(step===2){var d=document.getElementById('suDay').value,m=document.getElementById('suMonth').value,y=document.getElementById('suYear').value;if(!d||!m||!y){err.textContent='Please select day, month and year';return;}signupData.day=d;signupData.month=m;signupData.year=y;saveDraft();window.location.href='?step=3';return;}if(step===3){if(!signupData.gender){err.textContent='Please choose gender';return;}saveDraft();window.location.href='?step=4';return;}if(step===4){var e=document.getElementById('suEmail').value.trim();if(!e||e.indexOf('@')===-1){err.textContent='Please enter valid email';return;}signupData.email=e;saveDraft();window.location.href='?step=5';return;}if(step===5){var p=document.getElementById('suPass').value,p2=document.getElementById('suPass2').value;if(!p||p.length<6){err.textContent='Password must be at least 6 characters';return;}if(p!==p2){err.textContent='Passwords do not match';return;}signupData.password=p;saveDraft();window.location.href='?step=6';return;}}
+async function doAgree(btn){if(btn){btn.textContent='Please wait...';btn.disabled=true;}try{reloadDraft();if(!signupData.email||!signupData.password||!signupData.first){alert('Missing info!');window.location.href='?step=1';return;}showLoader('Creating account...');const{data,error}=await sbClient.auth.signUp({email:signupData.email,password:signupData.password,options:{emailRedirectTo:APP_URL+'/?page=feed'}});hideLoader();if(error){if(error.message.toLowerCase().includes('already')){saveDraft();window.location.href='?step=7';return;}alert('Sign up failed: '+error.message);if(btn){btn.textContent='I agree';btn.disabled=false;}return;}try{sessionStorage.setItem('documentary_profile_locked',JSON.stringify({email:signupData.email,gender:signupData.gender||'',dob:(signupData.year&&signupData.month&&signupData.day)?(signupData.year+'-'+signupData.month+'-'+signupData.day):''}));}catch(e){}saveDraft();window.location.href='?step=7';}catch(e){hideLoader();alert(e.message);if(btn){btn.textContent='I agree';btn.disabled=false;}}}
+async function checkGmailConfirmed(btn){try{reloadDraft();showLoader('Checking...');var r=await sbClient.auth.signInWithPassword({email:signupData.email,password:signupData.password});hideLoader();if(r.error){alert('Not confirmed yet: '+r.error.message);return;}signupData.username=(signupData.first+signupData.second).toLowerCase().replace(/[^a-z0-9]/g,'');saveDraft();window.location.href='?step=8';}catch(e){hideLoader();alert(e.message);}}
+async function saveUsername(btn){try{var uname=document.getElementById('suUsername').value.trim().toLowerCase();if(!uname||uname.length<3){alert('Username must be at least 3 letters');return;}signupData.username=uname;showLoader('Saving...');try{var ur=await sbClient.auth.getUser();var uid=ur.data&&ur.data.user?ur.data.user.id:null;if(uid)await sbClient.from('profiles').upsert({id:uid,name:signupData.first+' '+signupData.second,handle:uname,bio:''});}catch(e){}hideLoader();saveDraft();window.location.href='?step=9';}catch(e){hideLoader();alert(e.message);}}
+async function resendConfirm(){try{reloadDraft();showLoader('Resending...');var r=await sbClient.auth.resend({type:'signup',email:signupData.email,options:{emailRedirectTo:APP_URL+'/?page=feed'}});hideLoader();if(r.error)alert(r.error.message);else alert('Email resent');}catch(e){hideLoader();alert(e.message);}}
+function goToAppFromSignup(){clearDraft();clearLoginFields();window.location.href='?page=feed';}
+async function doLogin(btn){if(btn){btn.textContent='Logging in...';btn.disabled=true;}try{var email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPass').value;if(!email||!password){alert('Enter email + password');if(btn){btn.textContent='Log In';btn.disabled=false;}return;}showLoader('Logging in...');var r=await sbClient.auth.signInWithPassword({email:email,password:password});hideLoader();if(r.error){if(r.error.message.toLowerCase().includes('confirm')){signupData.email=email;signupData.password=password;saveDraft();window.location.href='?step=7';return;}document.getElementById('authMsg').textContent=r.error.message;alert('Login failed: '+r.error.message);if(btn){btn.textContent='Log In';btn.disabled=false;}return;}clearLoginFields();window.location.href='?page=feed';}catch(e){hideLoader();alert(e.message);if(btn){btn.textContent='Log In';btn.disabled=false;}}}
+async function loginGoogle(){const{error}=await sbClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:APP_URL+"/?page=feed",queryParams:{access_type:'offline',prompt:'consent'}}});if(error)alert(error.message);}
+async function forgotPass(){const email=document.getElementById('authEmail').value;if(!email)return alert('Enter email first');const{error}=await sbClient.auth.resetPasswordForEmail(email,{redirectTo:APP_URL+'/?page=feed'});if(error)alert(error.message);else alert('Password reset email sent!');}
+async function doLogout(){try{if(sbClient)await sbClient.auth.signOut();clearDraft();clearLoginFields();try{sessionStorage.clear();}catch(e){}}catch(e){}window.location.href='?page=login';}
+
+// ===== FEED / STORIES / EXPLORE =====
+let currentUser=null,currentCat='All',currentProfileTab='mine',currentCommentDoc=null,allDocs=[];
+let allStories=[],groupedStories=[],currentStoryGroup=0,currentStoryIndex=0,storyTimer=null;
+const CATEGORY_STORIES=[
+ {name:'Nature',img:'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=200&q=80'},
+ {name:'History',img:'https://images.unsplash.com/photo-1555993539-1732b0258235?w=200&q=80'},
+ {name:'Science',img:'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=200&q=80'},
+ {name:'Culture',img:'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=200&q=80'},
+ {name:'Wildlife',img:'https://images.unsplash.com/photo-1547407139-3c921a66005c?w=200&q=80'}
+];
+const FALLBACK_DOCS=[
+ {id:'1',title:'The Last Glacièr',description:'A journey to massai Mara',category:'Nature',thumbnail_url:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',duration:'12:45',profiles:{name:'Alex films',handle:'alexfilms',avatar_url:'https://i.pravatar.cc/150?img=12'},likes:[],saves:[],comments:[]},
+ {id:'2',title:'Rhythms of the City',description:'Music, people and street culture',category:'Culture',thumbnail_url:'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800',duration:'08:20',profiles:{name:'Mara Docs',handle:'maradocs',avatar_url:'https://i.pravatar.cc/150?img=32'},likes:[],saves:[],comments:[]}
+];
+function setCat(c,btn){currentCat=c;document.querySelectorAll('#feedPage .pill').forEach(p=>p.classList.remove('active'));if(btn)btn.classList.add('active');renderFeedList();}
+function onSearch(v){searchQuery=(v||'').toLowerCase().trim();var cl=document.getElementById('clearSearch');if(cl)cl.classList.toggle('hidden',!searchQuery);var sr=document.getElementById('searchResults');if(sr)sr.classList.toggle('hidden',!searchQuery);var st=document.getElementById('searchTitle');if(st)st.textContent='Results for "'+v+'"';renderFeedList();}
+function clearSearch(){var i=document.getElementById('searchInput');if(i)i.value='';onSearch('');}
+function onExploreSearch(v){exploreQuery=(v||'').toLowerCase().trim();renderExplore();}
+function setExploreCat(c,btn){exploreCat=c;document.querySelectorAll('#explorePage .pill').forEach(p=>p.classList.remove('active'));if(btn)btn.classList.add('active');renderExplore();}
+function setNotifTab(t,btn){notifTab=t;document.querySelectorAll('#notificationsPage .pill').forEach(p=>p.classList.remove('active'));if(btn)btn.classList.add('active');renderNotifications();}
+function markAllRead(){alert('All notifications marked as read');}
+function setProfileTab(t,btn){currentProfileTab=t;document.querySelectorAll('#profilePage .pill').forEach(p=>p.classList.remove('active'));if(btn)btn.classList.add('active');loadProfile();}
+function shareProfile(){navigator.clipboard.writeText(window.location.href);alert('Profile link copied!');}
+
+// ===== STORIES - YOUR STORY + REAL STORIES + CATEGORY SHORTCUTS =====
+async function loadStories(){
+  if(!sbClient||!currentUser) return renderStories();
+  try{
+    const{data}=await sbClient.from('stories').select('*, profiles!stories_user_id_fkey(name,handle,avatar_url)').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false});
+    allStories=data||[];
+    var map={}; groupedStories=[];
+    allStories.forEach(function(s){if(!map[s.user_id]){map[s.user_id]=[];groupedStories.push({user_id:s.user_id,profile:s.profiles,items:map[s.user_id]});}map[s.user_id].push(s);});
+    groupedStories.sort(function(a,b){if(a.user_id===currentUser.id)return -1;if(b.user_id===currentUser.id)return 1;return 0;});
+  }catch(e){allStories=[];groupedStories=[];}
+  renderStories();
+}
+function renderStories(){
+  var el=document.getElementById('stories');if(!el)return;
+  var myGroup=groupedStories.find(function(g){return g.user_id===currentUser.id;});
+  var myAvatar='https://i.pravatar.cc/150?img=12';
+  try{var pa=document.getElementById('profileAvatar');if(pa&&pa.src)myAvatar=pa.src;}catch(e){}
+  var myImg=(myGroup&&myGroup.items[0])?myGroup.items[0].media_url:myAvatar;
+  var myClass=myGroup?'has-story':'your-story';
+  var html='<div class="story '+myClass+'" onclick="onMyStoryClick()"><img src="'+myImg+'"><span class="add-badge">+</span><span>Your Story</span></div>';
+  groupedStories.forEach(function(g,idx){if(g.user_id===currentUser.id)return;var name=(g.profile&&g.profile.name)?g.profile.name.split(' ')[0]:'User';html+='<div class="story has-story" onclick="openStoryGroup('+idx+')"><img src="'+g.items[0].media_url+'"><span>'+name+'</span></div>';});
+  html+=CATEGORY_STORIES.map(function(s){return '<div class="story" onclick="setCat(\''+s.name+'\',null)"><img src="'+s.img+'"><span>'+s.name+'</span></div>';}).join('');
+  el.innerHTML=html;
+}
+function onMyStoryClick(){
+  var myGroup=groupedStories.find(function(g){return g.user_id===currentUser.id;});
+  if(myGroup){openStoryGroup(groupedStories.indexOf(myGroup));}else{document.getElementById('storyFileInput').click();}
+}
+async function uploadStoryFile(file){
+  if(!file||!currentUser)return;showLoader('Posting story...');
+  try{
+    var isVideo=file.type.indexOf('video')===0;
+    var path=currentUser.id+'/'+Date.now()+'-'+file.name;
+    const{error}=await sbClient.storage.from('stories').upload(path,file);if(error)throw error;
+    var url=sbClient.storage.from('stories').getPublicUrl(path).data.publicUrl;
+    const{error:insErr}=await sbClient.from('stories').insert({user_id:currentUser.id,media_url:url,media_type:isVideo?'video':'image'});if(insErr)throw insErr;
+    hideLoader();await loadStories();alert('Story posted! It will disappear after 24 hours.');
+  }catch(e){hideLoader();alert('Story failed: '+e.message);}
+}
+function openStoryGroup(idx){currentStoryGroup=idx;currentStoryIndex=0;showCurrentStory();document.getElementById('storyViewer').classList.remove('hidden');}
+function showCurrentStory(){
+  var g=groupedStories[currentStoryGroup];if(!g)return closeStoryViewer();
+  var s=g.items[currentStoryIndex];if(!s)return closeStoryViewer();
+  document.getElementById('storyViewerAvatar').src=(g.profile&&g.profile.avatar_url)||'';
+  document.getElementById('storyViewerName').textContent=(g.profile&&g.profile.name)||'User';
+  try{var d=new Date(s.created_at);document.getElementById('storyViewerTime').textContent=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+' • 24h';}catch(e){}
+  var mediaEl=document.getElementById('storyViewerMedia');
+  if(s.media_type==='video')mediaEl.innerHTML='<video src="'+s.media_url+'" autoplay controls playsinline style="width:100%"></video>';else mediaEl.innerHTML='<img src="'+s.media_url+'">';
+  if(storyTimer)clearInterval(storyTimer);
+  var bar=document.getElementById('storyProgressBar');bar.style.width='0%';var w=0;
+  storyTimer=setInterval(function(){w+=2;bar.style.width=w+'%';if(w>=100){clearInterval(storyTimer);nextStory();}},100);
+}
+function nextStory(){var g=groupedStories[currentStoryGroup];if(!g)return closeStoryViewer();if(currentStoryIndex<g.items.length-1){currentStoryIndex++;showCurrentStory();}else if(currentStoryGroup<groupedStories.length-1){currentStoryGroup++;currentStoryIndex=0;showCurrentStory();}else closeStoryViewer();}
+function prevStory(){if(currentStoryIndex>0){currentStoryIndex--;showCurrentStory();}else if(currentStoryGroup>0){currentStoryGroup--;currentStoryIndex=0;showCurrentStory();}}
+function closeStoryViewer(){if(storyTimer)clearInterval(storyTimer);document.getElementById('storyViewer').classList.add('hidden');}
+
+async function initApp(){
+  if(!sbClient)return;const{data:{user}}=await sbClient.auth.getUser();if(!user)return;currentUser=user;
+  document.getElementById('loginPage').classList.add('hidden');var app=document.getElementById('app');app.classList.remove('hidden');app.style.display='flex';
+  await loadFeed();await loadProfile();await loadNotifications();await loadStories();renderExplore();
+  var pg=getPageFromURL()||'feed';var pages=['feed','explore','profile','upload','notifications','settings'];
+  if(pages.indexOf(pg)!==-1){['feedPage','explorePage','profilePage','uploadPage','notificationsPage','settingsPage'].forEach(function(id){document.getElementById(id).classList.add('hidden');});var map={feed:'feedPage',explore:'explorePage',profile:'profilePage',upload:'uploadPage',notifications:'notificationsPage',settings:'settingsPage'};document.getElementById(map[pg]).classList.remove('hidden');document.querySelectorAll('nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='?page='+pg);});}
+}
+function filteredDocs(){var list=allDocs.slice();if(currentCat!=='All')list=list.filter(function(d){return (d.category||'')===currentCat;});if(searchQuery)list=list.filter(function(d){var hay=((d.title||'')+' '+(d.description||'')+' '+(d.category||'')+' '+((d.profiles&&d.profiles.name)||'')).toLowerCase();return hay.indexOf(searchQuery)!==-1;});return list;}
+async function loadFeed(){
+  var docs=FALLBACK_DOCS;
+  if(sbClient){try{var r=await sbClient.from('documentaries').select('*, profiles!documentaries_author_id_fkey(name,handle,avatar_url), likes(id,user_id), saves(id,user_id), comments(id)').order('created_at',{ascending:false});if(r.data&&r.data.length)docs=r.data;}catch(e){}}
+  allDocs=docs;renderFeedList();renderExplore();
+}
+function renderFeedList(){
+  var list=filteredDocs();var feedEl=document.getElementById('feedList');
+  if(!list.length){feedEl.innerHTML='<p style="padding:20px;text-align:center;color:#999">No documentaries yet. Tap + to create the first one!</p>';return;}
+  feedEl.innerHTML=list.map(function(d){
+    var liked=(d.likes||[]).some(function(l){return currentUser&&l.user_id===currentUser.id;});
+    var saved=(d.saves||[]).some(function(s){return currentUser&&s.user_id===currentUser.id;});
+    var mediaHtml=d.video_url?'<video src="'+d.video_url+'" controls poster="'+(d.thumbnail_url||'')+'"></video>':'<img src="'+(d.thumbnail_url||'')+'"><div class="play-btn">▶</div>';
+    return '<div class="card"><div class="card-top"><div class="user"><img src="'+(d.profiles&&d.profiles.avatar_url||'')+'"><div><b>'+(d.profiles&&d.profiles.name||'Unknown')+'</b><div style="font-size:12px;color:#888">@'+(d.profiles&&d.profiles.handle||'')+' • '+(d.category||'')+'</div></div></div><button class="follow-btn" onclick="toggleFollow(\''+d.author_id+'\',this)">Follow</button></div><div class="media">'+mediaHtml+'<div class="duration">'+(d.duration||'12:45')+'</div></div><div class="card-body"><h3>'+d.title+'</h3><p>'+(d.description||'')+'</p><div class="actions"><button onclick="toggleLike(\''+d.id+'\',this)">❤️ '+(d.likes?d.likes.length:0)+'</button><button onclick="openComments(\''+d.id+'\')">💬 '+(d.comments?d.comments.length:0)+'</button><button onclick="shareDoc(\''+d.title+'\')">↗ Share</button><button onclick="toggleSave(\''+d.id+'\',this)">'+(saved?'🔖 Saved':'♡ Save')+'</button></div></div></div>';
+  }).join('');
+}
+function renderExplore(){
+  var grid=document.getElementById('exploreGrid');if(!grid)return;
+  var list=allDocs.slice();if(exploreCat!=='All')list=list.filter(function(d){return (d.category||'')===exploreCat;});if(exploreQuery)list=list.filter(function(d){return d.title.toLowerCase().includes(exploreQuery);});
+  document.getElementById('exploreEmpty').classList.toggle('hidden',list.length>0);
+  grid.innerHTML=list.map(function(d){return '<div class="ex-item" onclick="window.location.href=\'?page=feed\'"><img src="'+(d.thumbnail_url||'')+'"><div class="ex-meta"><b>'+d.title+'</b><span>'+(d.category||'')+'</span></div></div>';}).join('');
+  var creators=document.getElementById('exploreCreators');if(creators)creators.innerHTML='';
+}
+async function toggleLike(docId,btn){if(!sbClient)return;const{data:ex}=await sbClient.from('likes').select('*').eq('user_id',currentUser.id).eq('doc_id',docId).single();if(ex)await sbClient.from('likes').delete().eq('id',ex.id);else{await sbClient.from('likes').insert({user_id:currentUser.id,doc_id:docId});await notify(docId,'like');}loadFeed();}
+async function toggleSave(docId,btn){if(!sbClient)return;const{data:ex}=await sbClient.from('saves').select('*').eq('user_id',currentUser.id).eq('doc_id',docId).single();if(ex)await sbClient.from('saves').delete().eq('id',ex.id);else await sbClient.from('saves').insert({user_id:currentUser.id,doc_id:docId});loadFeed();}
+async function toggleFollow(targetId,btn){if(!targetId||targetId===currentUser.id)return;const{data:ex}=await sbClient.from('follows').select('*').eq('follower_id',currentUser.id).eq('following_id',targetId).single();if(ex)await sbClient.from('follows').delete().eq('id',ex.id);else{await sbClient.from('follows').insert({follower_id:currentUser.id,following_id:targetId});await sbClient.from('notifications').insert({user_id:targetId,actor_id:currentUser.id,type:'follow'});}loadFeed();}
+async function notify(docId,type){var doc=allDocs.find(function(d){return d.id===docId;});if(!doc||doc.author_id===currentUser.id)return;await sbClient.from('notifications').insert({user_id:doc.author_id,actor_id:currentUser.id,type:type,doc_id:docId});}
+function shareDoc(title){if(navigator.share)navigator.share({title:title});else{alert('Link copied!');}}
+async function openComments(docId){currentCommentDoc=docId;document.getElementById('commentModal').classList.remove('hidden');var html='<p>No comments yet</p>';if(sbClient){const{data}=await sbClient.from('comments').select('*, profiles(name,avatar_url)').eq('doc_id',docId).order('created_at',{ascending:false});html=(data||[]).map(function(c){return '<div class="comment"><img src="'+(c.profiles&&c.profiles.avatar_url||'')+'"><div><b>'+(c.profiles&&c.profiles.name||'')+'</b><p>'+c.text+'</p></div></div>';}).join('')||html;}document.getElementById('commentList').innerHTML=html;}
+function closeComments(){document.getElementById('commentModal').classList.add('hidden');}
+async function postComment(){var text=document.getElementById('commentInput').value;if(!text)return;if(sbClient)await sbClient.from('comments').insert({user_id:currentUser.id,doc_id:currentCommentDoc,text:text});document.getElementById('commentInput').value='';await notify(currentCommentDoc,'comment');openComments(currentCommentDoc);loadFeed();}
+async function loadProfile(){
+  if(!sbClient||!currentUser)return;
+  const{data:profile}=await sbClient.from('profiles').select('*').eq('id',currentUser.id).single();if(!profile)return;
+  document.getElementById('profileName').textContent=profile.name||'';document.getElementById('profileHandle').textContent='@'+(profile.handle||'');document.getElementById('profileBio').textContent=profile.bio||'';document.getElementById('profileAvatar').src=profile.avatar_url||'';document.getElementById('settingsName').value=profile.name||'';document.getElementById('settingsUsername').value=profile.handle||'';document.getElementById('settingsBio').value=profile.bio||'';document.getElementById('settingsAvatarPreview').src=profile.avatar_url||'';document.getElementById('settingsPreviewName').textContent=profile.name||'Your Name';document.getElementById('settingsPreviewHandle').textContent='@'+(profile.handle||'username');
+  var locked={};try{locked=JSON.parse(sessionStorage.getItem('documentary_profile_locked')||'{}');}catch(e){}
+  document.getElementById('settingsEmailDisplay').textContent=currentUser.email||locked.email||'—';document.getElementById('settingsGenderDisplay').textContent=locked.gender||signupData.gender||'—';document.getElementById('settingsDobDisplay').textContent=locked.dob||'—';
+  const{data:myDocs}=await sbClient.from('documentaries').select('*').eq('author_id',currentUser.id).order('created_at',{ascending:false});
+  const{count:followers}=await sbClient.from('follows').select('*',{count:'exact',head:true}).eq('following_id',currentUser.id);
+  const{count:following}=await sbClient.from('follows').select('*',{count:'exact',head:true}).eq('follower_id',currentUser.id);
+  document.getElementById('statDocs').textContent=myDocs?myDocs.length:0;document.getElementById('statFollowers').textContent=followers||0;document.getElementById('statFollowing').textContent=following||0;
+  var gridDocs=[];if(currentProfileTab==='mine')gridDocs=myDocs||[];if(currentProfileTab==='saved'){const{data:s}=await sbClient.from('saves').select('documentaries(*)').eq('user_id',currentUser.id);gridDocs=(s||[]).map(function(x){return x.documentaries;});}if(currentProfileTab==='liked'){const{data:l}=await sbClient.from('likes').select('documentaries(*)').eq('user_id',currentUser.id);gridDocs=(l||[]).map(function(x){return x.documentaries;});}
+  document.getElementById('profileGrid').innerHTML=gridDocs.map(function(d){return '<img src="'+(d&&d.thumbnail_url||'')+'">';}).join('')||'<p style="grid-column:1/-1;text-align:center;color:#999">Empty</p>';
+}
+async function saveSettings(){
+  var name=document.getElementById('settingsName').value.trim(),handle=document.getElementById('settingsUsername').value.trim().toLowerCase(),bio=document.getElementById('settingsBio').value,location=document.getElementById('settingsLocation').value;
+  if(!name)return alert('Enter name');if(!handle||handle.length<3)return alert('Username must be at least 3 letters');
+  showLoader('Saving...');try{var file=document.getElementById('settingsAvatar').files[0];var avatar_url=null;if(file){var path=currentUser.id+'/'+Date.now()+'-'+file.name;const{error}=await sbClient.storage.from('avatars').upload(path,file);if(error)throw error;avatar_url=sbClient.storage.from('avatars').getPublicUrl(path).data.publicUrl;}var upd={name:name,handle:handle,bio:bio};if(avatar_url)upd.avatar_url=avatar_url;const{error}=await sbClient.from('profiles').update(upd).eq('id',currentUser.id);if(error)throw error;hideLoader();document.getElementById('settingsMsg').textContent='Saved!';setTimeout(function(){window.location.href='?page=profile';},800);}catch(e){hideLoader();alert(e.message);}
+}
+async function uploadDoc(){
+  var title=document.getElementById('docTitle').value,description=document.getElementById('docDesc').value,category=document.getElementById('docCat').value||'Nature';
+  var videoFile=document.getElementById('docVideo').files[0],thumbFile=document.getElementById('docThumb').files[0];
+  if(!title)return alert('Add title');document.getElementById('uploadMsg').textContent='Uploading...';
+  var video_url=null,thumbnail_url=null;
+  if(videoFile){var p=currentUser.id+'/'+Date.now()+'-'+videoFile.name;const{error}=await sbClient.storage.from('videos').upload(p,videoFile);if(error)return alert(error.message);video_url=sbClient.storage.from('videos').getPublicUrl(p).data.publicUrl;}
+  if(thumbFile){var p2=currentUser.id+'/'+Date.now()+'-'+thumbFile.name;const{error}=await sbClient.storage.from('thumbnails').upload(p2,thumbFile);if(error)return alert(error.message);thumbnail_url=sbClient.storage.from('thumbnails').getPublicUrl(p2).data.publicUrl;}
+  const{error}=await sbClient.from('documentaries').insert({title:title,description:description,category:category,video_url:video_url,thumbnail_url:thumbnail_url,author_id:currentUser.id});
+  if(error)return alert(error.message);document.getElementById('uploadMsg').textContent='Posted!';window.location.href='?page=feed';
+}
+async function loadNotifications(){
+  if(!sbClient||!currentUser)return;const{data}=await sbClient.from('notifications').select('*, profiles!notifications_actor_id_fkey(name,avatar_url), documentaries(title)').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(30);window._allNotifs=data||[];renderNotifications();
+}
+function renderNotifications(){
+  var list=window._allNotifs||[];if(notifTab!=='all')list=list.filter(function(n){return n.type===notifTab;});
+  var wrap=document.getElementById('notifList');var empty=document.getElementById('notifEmpty');
+  if(!list.length){if(wrap)wrap.innerHTML='';if(empty)empty.classList.remove('hidden');return;}if(empty)empty.classList.add('hidden');
+  wrap.innerHTML=list.map(function(n){var txt=n.type==='like'?'liked your documentary':n.type==='follow'?'started following you':'commented on your documentary';return '<div class="notif-card"><img src="'+(n.profiles&&n.profiles.avatar_url||'')+'"><div><b>'+(n.profiles&&n.profiles.name||'Someone')+'</b><p>'+txt+'</p></div></div>';}).join('');
+}
+function setupFilePickers(){
+  var v=document.getElementById('docVideo');if(v)v.addEventListener('change',function(){var f=v.files[0];if(!f)return;document.getElementById('videoFileName').textContent=f.name;document.getElementById('videoDropTitle').textContent='Video selected';var pv=document.getElementById('videoPreview');pv.src=URL.createObjectURL(f);pv.classList.remove('hidden');});
+  var t=document.getElementById('docThumb');if(t)t.addEventListener('change',function(){var f=t.files[0];if(!f)return;document.getElementById('thumbFileName').textContent=f.name;document.getElementById('thumbDropTitle').textContent='Thumbnail selected';var pv=document.getElementById('thumbPreview');pv.src=URL.createObjectURL(f);pv.classList.remove('hidden');});
+  var av=document.getElementById('settingsAvatar');if(av)av.addEventListener('change',function(){var f=av.files[0];if(!f)return;document.getElementById('settingsAvatarPreview').src=URL.createObjectURL(f);});
+  var sf=document.getElementById('storyFileInput');if(sf)sf.addEventListener('change',function(){var f=sf.files[0];if(f)uploadStoryFile(f);sf.value='';});
+}
+
+// ===== G AI - GENERAL BUT LOYAL - GEMINI =====
+async function askGAI(q){
+  try{
+    const{data,error}=await sbClient.functions.invoke('GEMINI_KEY_API',{body:{message:q}});
+    if(error)throw error;return data.reply||"Sorry, try again.";
+  }catch(e){
+    var low=q.toLowerCase();
+    if(low.includes('best app')||low.includes('watch documentaries')||low.includes('youtube')||low.includes('netflix')||low.includes('tiktok'))return "The best app is Documentary. It's the best place to discover, watch, share and learn from documentaries, with creators, stories and AI help.";
+    return "I'm having trouble reaching G right now. Try again in a moment.";
+  }
+}
+function openGAI(){document.getElementById('gModal').classList.add('open');}
+function closeGAI(){document.getElementById('gModal').classList.remove('open');}
+function addGMsg(text,who){var chat=document.getElementById('gChat');var div=document.createElement('div');div.className='g-msg '+who;div.innerHTML=who==='g'?'<div class="g-logo small">G</div><span></span>':'<span></span>';div.querySelector('span').textContent=text;chat.appendChild(div);chat.scrollTop=chat.scrollHeight;}
+async function sendG(){var input=document.getElementById('gInput');var text=input.value.trim();if(!text)return;addGMsg(text,'user');input.value='';addGMsg('G is thinking...','g');var reply=await askGAI(text);document.getElementById('gChat').lastChild.remove();addGMsg(reply,'g');}
+function askG(preset){openGAI();setTimeout(async function(){addGMsg(preset,'user');addGMsg('G is thinking...','g');var reply=await askGAI(preset);document.getElementById('gChat').lastChild.remove();addGMsg(reply,'g');},100);}
+
+document.addEventListener('DOMContentLoaded',function(){
+  clearLoginFields();
+  var d=document.getElementById('suDay');if(d)for(var i=1;i<=31;i++){var o=document.createElement('option');o.value=('0'+i).slice(-2);o.textContent=i;d.appendChild(o);}
+  var y=document.getElementById('suYear');if(y)for(var yr=2026;yr>=1950;yr--){var o2=document.createElement('option');o2.value=yr;o2.textContent=yr;y.appendChild(o2);}
+  restoreFromURL();setupFilePickers();
+  if(sbClient){
+    sbClient.auth.getSession().then(function(r){if(r.data&&r.data.session){initApp().then(function(){hideSplash();});}else{if(getPageFromURL()&&getPageFromURL()!=='login'&&!getStepFromURL()){window.location.href='?page=login';return;}hideSplash();hideLoader();}});
+    sbClient.auth.onAuthStateChange(function(ev,sess){if(ev==='SIGNED_IN'&&sess&&window.location.search.indexOf('page=feed')===-1&&window.location.hash.indexOf('access_token')!==-1){window.location.href='?page=feed';}});
+  }else hideSplash();
+  var uname=document.getElementById('suUsername');if(uname)uname.addEventListener('input',function(){var v=uname.value.toLowerCase().replace(/[^a-z0-9_.]/g,'');uname.value=v;var p=document.getElementById('usernamePreview');if(p)p.textContent='@'+(v||'username');});
+  var eye=document.getElementById('eyeBtn');if(eye)eye.addEventListener('click',function(e){e.preventDefault();var p=document.getElementById('authPass');p.type=p.type==='password'?'text':'password';});
+  var sn=document.getElementById('settingsName');if(sn)sn.addEventListener('input',function(){document.getElementById('settingsPreviewName').textContent=sn.value||'Your Name';});
+});
+</script>
+</body>
+</html>
