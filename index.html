@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Documentary</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, Arial, sans-serif; background: #f5f5f5; color: #111; }
+    .phone { width: 100%; max-width: 430px; min-height: 100dvh; margin: auto; position: relative; background: #fff; overflow: hidden; }
+    .scroll { height: 100dvh; overflow-y: auto; padding-bottom: 90px; }
+    header { position: sticky; top: 0; z-index: 2; background: #fff; padding: 16px; border-bottom: 1px solid #eee; font-size: 20px; font-weight: 900; }
+    header span { color: #ffc82e; }
+    main { padding: 16px; }
+    .card { padding: 18px; margin-bottom: 14px; border: 1px solid #eee; border-radius: 16px; background: #fff; min-height: 180px; }
+    .card h2 { margin: 0 0 8px; font-size: 18px; }
+    .card p { color: #666; line-height: 1.5; }
+    nav { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; padding: 10px 0 max(14px, env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #eee; z-index: 10; transition: transform .25s ease; will-change: transform; }
+    nav.nav-hidden { transform: translateY(110%); }
+    nav a { min-width: 58px; color: #777; text-decoration: none; text-align: center; font-size: 12px; }
+    nav a.active { color: #111; font-weight: 700; }
+    nav .fab { width: 48px; height: 48px; min-width: 48px; margin-top: -26px; border-radius: 50%; display: grid; place-items: center; background: #ffc82e; color: #111; font-size: 28px; box-shadow: 0 3px 10px #0002; }
+    @media (min-width: 500px) { .phone { margin: 18px auto; height: calc(100dvh - 36px); min-height: 0; border: 8px solid #111; border-radius: 36px; } .scroll { height: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="scroll" id="mainScroll">
+      <header>Documentary<span>.</span></header>
+      <main>
+        <section class="card"><h2>Welcome to Documentary</h2><p>Discover and share real stories from around the world.</p></section>
+        <section class="card"><h2>Explore documentaries</h2><p>Scroll through the feed to discover stories, creators, and perspectives.</p></section>
+        <section class="card"><h2>Share your story</h2><p>Use the plus button in the navigation to create a documentary.</p></section>
+        <section class="card"><h2>Keep exploring</h2><p>The bottom navigation hides while scrolling down and slides back into view when you scroll up.</p></section>
+        <section class="card"><h2>Documentary</h2><p>Stories worth watching.</p></section>
+      </main>
+    </div>
+    <nav aria-label="Bottom navigation">
+      <a class="active" href="#feed">⌂<br>Feed</a>
+      <a href="#explore">◎<br>Explore</a>
+      <a class="fab" href="#create" aria-label="Create">+</a>
+      <a href="#notifications">♡<br>Notifications</a>
+      <a href="#profile">○<br>Profile</a>
+    </nav>
+  </div>
+  <script>
+    (function () {
+      var scrollArea = document.getElementById('mainScroll');
+      var navBar = document.querySelector('nav');
+      if (!scrollArea || !navBar) return;
+      var lastScrollTop = scrollArea.scrollTop;
+      scrollArea.addEventListener('scroll', function () {
+        var currentScrollTop = scrollArea.scrollTop;
+        if (currentScrollTop <= 0 || currentScrollTop < lastScrollTop - 2) {
+          navBar.classList.remove('nav-hidden');
+        } else if (currentScrollTop > lastScrollTop + 2) {
+          navBar.classList.add('nav-hidden');
+        }
+        lastScrollTop = currentScrollTop;
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
