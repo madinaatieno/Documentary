@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>Documentary</title>
-  <style>body{margin:0;font:16px system-ui,Arial,sans-serif;color:#222}.boot-error{max-width:34rem;margin:18vh auto;padding:24px;text-align:center}.boot-error a{color:#8a6a00}</style>
+  <style>
+    body{margin:0;font:16px system-ui,Arial,sans-serif;color:#222}
+    .boot-error{max-width:34rem;margin:18vh auto;padding:24px;text-align:center}
+    .boot-error a{color:#8a6a00}
+  </style>
 </head>
 <body>
   <main class="boot-error" id="bootStatus">Loading Documentary…</main>
@@ -16,7 +20,7 @@
         var response = await fetch(source, { cache: 'no-store' });
         if (!response.ok) throw new Error('App source could not be fetched');
         var html = await response.text();
-        var recoveryScript = '<script>function dismissStuckSplash(){var splash=document.getElementById("splash");if(splash)splash.style.display="none";}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){setTimeout(dismissStuckSplash,800);},{once:true});}else{dismissStuckSplash();}window.addEventListener("load",dismissStuckSplash,{once:true});setTimeout(dismissStuckSplash,7000);<' + '/script>';
+        var recoveryScript = '<script>(function(){function dismissStuckSplash(){var splash=document.getElementById("splash");if(splash)splash.style.display="none";}function setupScrollNavigation(){var scroller=document.getElementById("mainScroll");var nav=document.querySelector(".phone > nav");if(!scroller||!nav)return;var lastY=scroller.scrollTop;nav.style.transition="transform .24s ease";scroller.addEventListener("scroll",function(){var y=scroller.scrollTop;var delta=y-lastY;if(y<24||delta < -3){nav.style.transform="translateY(0)";}else if(delta > 3 && y>60){nav.style.transform="translateY(calc(100% + 24px))";}lastY=y;},{passive:true});}function init(){setupScrollNavigation();dismissStuckSplash();}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init,{once:true});}else{init();}window.addEventListener("load",dismissStuckSplash,{once:true});setTimeout(dismissStuckSplash,7000);})();<' + '/script>';
         if (/<\/body\s*>/i.test(html)) html = html.replace(/<\/body\s*>/i, recoveryScript + '</body>');
         else html += recoveryScript;
         document.open();
