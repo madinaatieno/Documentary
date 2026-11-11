@@ -15,8 +15,8 @@
     .card { padding: 18px; margin-bottom: 14px; border: 1px solid #eee; border-radius: 16px; background: #fff; min-height: 180px; }
     .card h2 { margin: 0 0 8px; font-size: 18px; }
     .card p { color: #666; line-height: 1.5; }
-    nav { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; padding: 10px 0 max(14px, env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #eee; z-index: 10; transition: transform .25s ease; will-change: transform; }
-    nav.nav-hidden { transform: translateY(110%); }
+    nav { position: absolute; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; padding: 10px 0 max(14px, env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #eee; z-index: 10; transition: transform .25s ease, opacity .25s ease; will-change: transform; }
+    nav.nav-hidden { transform: translateY(110%); opacity: .9; }
     nav a { min-width: 58px; color: #777; text-decoration: none; text-align: center; font-size: 12px; }
     nav a.active { color: #111; font-weight: 700; }
     nav .fab { width: 48px; height: 48px; min-width: 48px; margin-top: -26px; border-radius: 50%; display: grid; place-items: center; background: #ffc82e; color: #111; font-size: 28px; box-shadow: 0 3px 10px #0002; }
